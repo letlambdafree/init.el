@@ -4,19 +4,7 @@
 
 ;;; Commentary:
 
-;; (function ...)
-;; 0 >= is false
-;; on/off는 1과 -1 사용,
-;; 코드일 땐 생략과 -1 사용
-;; 함수마다 원하는 arg가 다르므로 주의
-
-;; (setq variable ...)
-;; nil is false
-;; on/off는 t와  nil 사용
-;; 함수명을 같은 변수명으로도 사용하므로 조심 할 것
-;; `(Info-goto-node "(Emacs)Copying")'
-
-;; one or three blank line (not two blank line)
+;; one or three blank line (not two blank lines)
 ;;
 ;; comment as detail as possible for me later
 
