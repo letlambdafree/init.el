@@ -927,7 +927,9 @@ Video file plays on a fit window with original aspect raitio in exwm."
                       ((eq (length b) 4) (nthcdr 2 b))))
              (c (/ (string-to-number (nth 0 b))
                    (float (string-to-number
-                           (if (nth 1 b) (nth 1 b) 1))))))
+                           (if (nth 1 b) (nth 1 b) 1)))))
+             ;; 1.77777777777777 -> 1.78
+             (c (string-to-number (format "%0.2f" c))))
           (if (> c 2)
               (ryutas/aspect-ratio-h c)
             (ryutas/aspect-ratio-w c)))
