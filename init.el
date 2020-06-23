@@ -2653,6 +2653,7 @@ If dired-mode, open the file"
   (exwm-input-set-key (kbd "C-c <M-tab>") 'buffer-expose-dired-buffers)
   (exwm-input-set-key (kbd "C-c <M-s-tab>") 'buffer-expose-major-mode)
   ;; (exwm-input-set-key (kbd "C-x k") nil)  ; selecting deleted buffer
+  (exwm-input-set-key (kbd "C-c 1") 'ryutas/aspect-ratio-t)
   (exwm-input-set-key (kbd "C-c 2") 'ryutas/aspect-ratio-w)
   (exwm-input-set-key (kbd "C-c 3") 'ryutas/aspect-ratio-h)
   (exwm-input-set-key (kbd "C-' '") 'goto-last-change)
@@ -2752,6 +2753,7 @@ If dired-mode, open the file"
   ;; 2.35 - 1920 x 800 (wide)
   ;; 2.67 - 1920 x 720
   (defvar ar-index 0)
+  (defvar ar-toggle 0)
 
   (defun ryutas/aspect-ratio-w(&optional ar)
     "Fixed width."
@@ -2792,6 +2794,15 @@ If dired-mode, open the file"
                 "H" 'face '(:foreground "green"))
                (propertize
                 (number-to-string r) 'face '(:foreground "red")))))
+
+  (defun ryutas/aspect-ratio-t()
+    "Toggle between ryutas/aspect-ratio-w and ryutas/aspect-ratio-h."
+    (interactive)
+    (balance-windows)
+    (if ar-toggle (progn (setq ar-toggle nil)
+                         (ryutas/aspect-ratio-h))
+      (progn (setq ar-toggle t)
+             (ryutas/aspect-ratio-w))))
 
   (add-hook 'exwm-manage-finish-hook
             (lambda ()
