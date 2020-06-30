@@ -2598,10 +2598,12 @@ If dired-mode, open the file"
   (require 'exwm-config)
   ;; https://github.com/ch11ng/exwm/wiki
   ;; Rename buffer to window title.
-  (defun ambrevar/exwm-rename-buffer-to-title ()
-    (exwm-workspace-rename-buffer exwm-title))
+  (defun ryutas/exwm-rename-buffer-to-title ()
+    (exwm-workspace-rename-buffer exwm-title)
+    (if (string-match-p "Torrents for " (buffer-name))
+        (exwm-floating-toggle-floating)))
 
-  (add-hook 'exwm-update-title-hook 'ambrevar/exwm-rename-buffer-to-title)
+  (add-hook 'exwm-update-title-hook 'ryutas/exwm-rename-buffer-to-title)
   (add-hook 'exwm-floating-setup-hook 'exwm-layout-hide-mode-line)
   (add-hook 'exwm-floating-exit-hook 'exwm-layout-show-mode-line)
 
