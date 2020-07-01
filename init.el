@@ -190,7 +190,7 @@ There are two things you can do about this warning:
 ;;                     :background "black"
 ;;                     :box nil)
 (global-set-key (kbd "<mode-line><double-mouse-1>")
-                'zygospore-toggle-delete-other-windows)
+                'zoom-window-zoom)
 
 
 ;; setup-minibuffer
@@ -1956,6 +1956,7 @@ than having to call `add-to-list' multiple times."
 
 
 (use-package zygospore
+  :disabled
   :bind
   ("C-x 1" . zygospore-toggle-delete-other-windows))
 
@@ -1963,9 +1964,9 @@ than having to call `add-to-list' multiple times."
 
 (use-package zoom-window ; better than zygospore
   :bind
-  ("C-c x" . ryutas/zoom-window-zoom)
+  ("C-x 1" . ryutas/zoom-window-zoom)
   :config
-  (custom-set-variables '(zoom-window-mode-line-color "red4"))
+  ;; (custom-set-variables '(zoom-window-mode-line-color "red4"))
 
   (defun ryutas/zoom-window-zoom()
     "Test."
