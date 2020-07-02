@@ -1431,16 +1431,6 @@ than having to call `add-to-list' multiple times."
 (use-package helm
   :demand
   :diminish
-  :init
-  (defun ryutas/helm-next-line()
-    (interactive)
-    (helm-next-line)
-    (helm-execute-persistent-action))
-
-  (defun ryutas/helm-previous-line()
-    (interactive)
-    (helm-previous-line)
-    (helm-execute-persistent-action))
   :bind
   ;; C-x c : prefix
   ;; C-o : jump to other source in helm session
@@ -1449,8 +1439,6 @@ than having to call `add-to-list' multiple times."
   ("C-x C-f" . helm-find-files)
   ("M-y" . helm-show-kill-ring)
   (:map helm-map
-        ("C-n". ryutas/helm-next-line)
-        ("C-p". ryutas/helm-previous-line)
         ("<tab>" . helm-execute-persistent-action)
         ("C-i" . helm-execute-persistent-action)
         ("C-z" . helm-select-action))
