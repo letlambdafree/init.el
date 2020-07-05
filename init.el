@@ -933,7 +933,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
           (if (> c 2)
               (ryutas/aspect-ratio-h c)
             (ryutas/aspect-ratio-w c)))
-        (start-process "dired-mpv" nil "mpv" f)))
+        (start-process "dired-mpv" nil "mpv-with-sub" f)))
      ;; default open with xdg-open
      (t (start-process "dired-xdg" nil "xdg-open" f)))))
 
