@@ -2775,7 +2775,9 @@ If dired-mode, open the file"
                  1)))
       (if (not ar)
           (setq ar-index i))
-      (window-resize nil (- h (window-pixel-height)) nil nil t)
+      (condition-case nil
+          (window-resize nil (- h (window-pixel-height)) nil nil t)
+        (error nil))
       (message "aspect ratio(%s): %s"
                (propertize
                 "W" 'face '(:foreground "green"))
@@ -2795,7 +2797,9 @@ If dired-mode, open the file"
                         r))))
       (if (not ar)
           (setq ar-index i))
-      (window-resize nil (- w (window-pixel-width)) t nil t)
+      (condition-case nil
+          (window-resize nil (- w (window-pixel-width)) t nil t)
+        (error nil))
       (message "aspect ratio(%s): %s"
                (propertize
                 "H" 'face '(:foreground "green"))
