@@ -1,16 +1,31 @@
 ;;; init.el --- initializing -*- lexical-binding: t; coding: utf-8 -*-
 
 ;;; Licence:
+;; Copyright (C) 2020 by Taeseong Ryu
+
+;; Author: Taeseong Ryu <formeu2s@gmail.com>
+;; URL: https://github.com/letlambdafree/init.el
+;; Version: 0.0.1
+;; Keywords: config
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;; one or three blank line (not two blank lines)
 ;;
 ;; comment as detail as possible for me later
-
-;; (package-initialize)로 관리되는 패키지들은
-;; 따로 require와 load-path를 지정 할 필요가 없어짐
-;; 직접 수동 설치시에는 필요
 
 ;;; Code:
 
