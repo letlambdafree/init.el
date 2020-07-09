@@ -514,11 +514,14 @@ There are two things you can do about this warning:
   (interactive)
   (my-change-buffer 'next-buffer))
 
-(global-set-key [remap previous-buffer] 'my-previous-buffer)
-(global-set-key [remap next-buffer] 'my-next-buffer)
+;; weird behave
+;; (global-set-key [remap previous-buffer] 'my-previous-buffer)
+;; (global-set-key [remap next-buffer] 'my-next-buffer)
 
-(global-set-key [mouse-8] 'previous-buffer)
-(global-set-key [mouse-9] 'next-buffer)
+(global-set-key [mouse-8] 'my-previous-buffer)
+(global-set-key [mouse-9] 'my-next-buffer)
+(global-set-key (kbd "C-x <right>") 'my-next-buffer)
+(global-set-key (kbd "C-x <left>") 'my-previous-buffer)
 ;; (global-set-key (kbd "<C-tab>") 'next-buffer)
 ;; (global-set-key (kbd "<S-C-tab>") 'previous-buffer)
 ;; (global-set-key (kbd "<C-iso-tab>") 'previous-buffer)
