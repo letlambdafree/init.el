@@ -937,7 +937,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
      ;; default open with xdg-open
      (t (start-process "dired-xdg" nil "xdg-open" f)))))
 
-(define-key dired-mode-map (kbd "C-<return>") #'ryutas/open-in-dired)
+;; (define-key dired-mode-map (kbd "C-<return>") #'ryutas/open-in-dired)
 ;; (define-key dired-mode-map (kbd "<mouse-1>") #'dired-find-file)
 ;; (define-key
 ;;   dired-mode-map (kbd "C-<return>") #'dired-do-async-shell-command)
@@ -1898,6 +1898,11 @@ than having to call `add-to-list' multiple times."
 
 
 
+(use-package markdown-mode
+  :defer t)
+
+
+
 (use-package workgroups2
   :disabled
   :bind
@@ -2660,9 +2665,9 @@ If dired-mode, open the file"
   (exwm-input-set-key (kbd "C-c <M-tab>") 'buffer-expose-dired-buffers)
   (exwm-input-set-key (kbd "C-c <M-s-tab>") 'buffer-expose-major-mode)
   ;; (exwm-input-set-key (kbd "C-x k") nil)  ; selecting deleted buffer
-  (exwm-input-set-key (kbd "C-c 1") 'ryutas/aspect-ratio-t)
-  (exwm-input-set-key (kbd "C-c 2") 'ryutas/aspect-ratio-w)
-  (exwm-input-set-key (kbd "C-c 3") 'ryutas/aspect-ratio-h)
+  ;; (exwm-input-set-key (kbd "C-c 1") 'ryutas/aspect-ratio-t)
+  ;; (exwm-input-set-key (kbd "C-c 2") 'ryutas/aspect-ratio-w)
+  ;; (exwm-input-set-key (kbd "C-c 3") 'ryutas/aspect-ratio-h)
   (exwm-input-set-key (kbd "C-' '") 'goto-last-change)
   (exwm-input-set-key (kbd "C-' f") 'ace-window)
   (exwm-input-set-key (kbd "C-' <SPC>") 'ryutas/avy-goto-char-timer)
@@ -2775,9 +2780,8 @@ If dired-mode, open the file"
                  1)))
       (if (not ar)
           (setq ar-index i))
-      (condition-case nil
-          (window-resize nil (- h (window-pixel-height)) nil nil t)
-        (error nil))
+      (ignore-errors
+        (window-resize nil (- h (window-pixel-height)) nil nil t))
       (message "aspect ratio(%s): %s"
                (propertize
                 "W" 'face '(:foreground "green"))
@@ -2797,9 +2801,8 @@ If dired-mode, open the file"
                         r))))
       (if (not ar)
           (setq ar-index i))
-      (condition-case nil
-          (window-resize nil (- w (window-pixel-width)) t nil t)
-        (error nil))
+      (ignore-errors
+        (window-resize nil (- w (window-pixel-width)) t nil t))
       (message "aspect ratio(%s): %s"
                (propertize
                 "H" 'face '(:foreground "green"))
@@ -3362,7 +3365,7 @@ Position the cursor at it's beginning, according to the current mode."
         (mode . idl-mode)
         (mode . lisp-mode))))))
  '(package-selected-packages
-   '(helm-flycheck moonshot dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner goto-chg avy-flycheck ace-link helm-swoop vterm ace-mc fzf pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
+   '(markdown-mode helm-flycheck moonshot dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner goto-chg avy-flycheck ace-link helm-swoop vterm ace-mc fzf pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
  '(temp-buffer-resize-mode nil)
  '(time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S")
  '(vc-annotate-background nil)
