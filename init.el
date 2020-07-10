@@ -120,18 +120,28 @@ There are two things you can do about this warning:
 
 
 ;; init file
-(defun byte-compile-init-file()
-  "Auto 'user-init-file' byte compile."
-  (when (equal buffer-file-name user-init-file)
+;; (defun byte-compile-init-file()
+;;   "Auto 'user-init-file' byte compile."
+;;   (when (equal buffer-file-name user-init-file)
+;;     ;; save elc file without failing
+;;     (if (file-exists-p (concat user-init-file "c"))
+;;         (delete-file (concat user-init-file "c")))
+;;     (byte-compile-file user-init-file t) ; t for reload
+;;     (message "Just compiled %s " user-init-file)))
+
+;; (add-hook 'after-save-hook 'byte-compile-init-file)
+
+;; el file
+(defun byte-compile-el-file()
+  "Auto 'el-file' byte compile."
+  (when (equal (file-name-extension buffer-file-name) "el")
     ;; save elc file without failing
-    (if (file-exists-p (concat user-init-file "c"))
-        (delete-file (concat user-init-file "c")))
-    (byte-compile-file user-init-file t) ; t for reload
-    (message "Just compiled %s " user-init-file)))
+    (if (file-exists-p (concat buffer-file-name "c"))
+        (delete-file (concat buffer-file-name "c")))
+    (byte-compile-file buffer-file-name t) ; t for reload
+    (message "Just compiled %s " buffer-file-name)))
 
-(add-hook 'after-save-hook 'byte-compile-init-file)
-
-
+(add-hook 'after-save-hook 'byte-compile-el-file)
 
 ;; emacs-startup-hook
 (add-hook 'emacs-startup-hook
@@ -244,8 +254,8 @@ There are two things you can do about this warning:
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-
-
+(if (fboundp 'tab-bar-mode) (tab-bar-mode -1))
+(if (fboundp 'tab-line-mode) (tab-line-mode -1))
 
 ;; basic functions
 (blink-cursor-mode -1)
