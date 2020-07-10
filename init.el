@@ -131,6 +131,8 @@ There are two things you can do about this warning:
 
 ;; (add-hook 'after-save-hook 'byte-compile-init-file)
 
+
+
 ;; el file
 (defun byte-compile-el-file()
   "Auto 'el-file' byte compile."
@@ -142,6 +144,8 @@ There are two things you can do about this warning:
     (message "Just compiled %s " buffer-file-name)))
 
 (add-hook 'after-save-hook 'byte-compile-el-file)
+
+
 
 ;; emacs-startup-hook
 (add-hook 'emacs-startup-hook
@@ -1154,7 +1158,7 @@ than having to call `add-to-list' multiple times."
 
 (defun xah-rename-eww-buffer ()
   "Rename `eww-mode' buffer so sites open in new page.
-  URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
+URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   Version 2017-11-10"
   (let (($title (plist-get eww-data :title)))
     (when (eq major-mode 'eww-mode )
@@ -1166,7 +1170,12 @@ than having to call `add-to-list' multiple times."
 
 
 
-;;  Packages from package-archives(melpa, elpa)
+;; my git
+(load "~/git/exwm-aspect-ratio/exwm-aspect-ratio")
+
+
+
+;; Packages from package-archives(melpa, elpa)
 
 (use-package diminish
   :demand
