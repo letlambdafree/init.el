@@ -249,8 +249,8 @@ There are two things you can do about this warning:
 ;; the space is highlighted
 (add-hook 'prog-mode-hook
           (lambda ()
-            (interactive)
-            (setq show-trailing-whitespace 1)))
+            ;; (interactive) ; testing
+            (setq show-trailing-whitespace t)))
 
 
 
@@ -260,6 +260,8 @@ There are two things you can do about this warning:
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tab-bar-mode) (tab-bar-mode -1))
 (if (fboundp 'tab-line-mode) (tab-line-mode -1))
+
+
 
 ;; basic functions
 (blink-cursor-mode -1)
@@ -340,7 +342,7 @@ There are two things you can do about this warning:
 ;; mouse scrolling
 (setq scroll-margin 0
       scroll-conservatively 100
-      scroll-preserve-screen-position 1)
+      scroll-preserve-screen-position nil)
 ;; (setq mouse-autoselect-window t
 ;;       focus-follows-mouse t)
 (setq mouse-wheel-progressive-speed nil) ; don't accelerate scrolling
