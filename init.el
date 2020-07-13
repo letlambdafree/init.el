@@ -277,6 +277,7 @@ There are two things you can do about this warning:
 (auto-fill-mode -1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (normal-erase-is-backspace-mode) ; del key deletes at point
+(display-time-mode -1)
 
 
 
@@ -306,6 +307,9 @@ There are two things you can do about this warning:
       large-file-warning-threshold 100000000 ; 100M byte
       mode-require-final-newline t
       desktop-restore-eager 5 ; t is all buffer
+      case-replace nil ; Non-nil means should preserve case
+      display-time-day-and-date nil ; display-time
+      display-time-interval 60
       register-preview-delay nil)
 
 
@@ -2217,7 +2221,7 @@ If dired-mode, open the file"
   (dired-rainbow-define media "#0074d9"
                         ("mkv" "mp3" "mp4" "MP3" "MP4" "avi" "mpeg" "mpg"
                          "flv" "asf" "ogg" "mov" "mid" "midi" "wav" "aiff"
-                         "flac" "webm"))
+                         "flac" "webm" "wmv"))
   (dired-rainbow-define image "#f66d9b"
                         ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg"
                          "png" "psd" "eps" "svg" "bmp"))
