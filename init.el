@@ -157,9 +157,11 @@ There are two things you can do about this warning:
 
 ;; before-save-hook
 (add-hook 'before-save-hook 'time-stamp)
+;; markdown ??
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'before-save-hook
           '(lambda () (untabify (point-min) (point-max))))
+;; don't understand
 (add-hook
  'before-save-hook
  '(lambda ()
@@ -941,7 +943,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
      ;; video file
      ((member (file-name-extension f)
               '("mkv" "avi" "mp4" "mpeg" "mpg" "wmv" "flv"
-                "webm" "ogg" "asf" "mov"))
+                "webm" "ogg" "asf" "mov" "ts"))
       (progn
         (let*
             ((f (s-replace-regexp "[][() ]" "\\\\\\&" f))
@@ -971,7 +973,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
           (if (> c 2)
               (ryutas/aspect-ratio-h c)
             (ryutas/aspect-ratio-w c)))
-        (start-process "dired-mpv" nil "mpv-with-sub" f)))
+        (start-process "aspect-ratio-mpv" nil "mpv-with-sub" f)))
      ;; default open with xdg-open
      (t (start-process "dired-xdg" nil "xdg-open" f)))))
 
@@ -2223,7 +2225,7 @@ If dired-mode, open the file"
   (dired-rainbow-define media "#0074d9"
                         ("mkv" "mp3" "mp4" "MP3" "MP4" "avi" "mpeg" "mpg"
                          "flv" "asf" "ogg" "mov" "mid" "midi" "wav" "aiff"
-                         "flac" "webm" "wmv"))
+                         "flac" "webm" "wmv" "ts"))
   (dired-rainbow-define image "#f66d9b"
                         ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg"
                          "png" "psd" "eps" "svg" "bmp"))
@@ -2858,13 +2860,13 @@ If dired-mode, open the file"
     (balance-windows)
     (if ar-toggle (progn (setq ar-toggle nil)
                          (ryutas/aspect-ratio-h))
-      (progn (setq ar-toggle t)
-             (ryutas/aspect-ratio-w))))
+      (setq ar-toggle t)
+      (ryutas/aspect-ratio-w)))
 
   (add-hook 'exwm-manage-finish-hook
             (lambda ()
-              (when (or (and (string= "mpv" exwm-class-name)
-                             (not (get-process "dired-mpv")))
+              (when (or (and (string= "mpv" exwm-class-name) ; mpv-with
+                             (not (get-process "aspect-ratio-mpv")))
                         (string= "Picture-in-Picture" exwm-title))
                 (ryutas/aspect-ratio-w 1.78))))
 
