@@ -2730,7 +2730,6 @@ If dired-mode, open the file"
           ([?\s-f] . exwm-layout-toggle-fullscreen)
           ([?\s-v] . exwm-floating-toggle-floating)
           ([?\s-x] . helm-run-external-command)
-          ([?\s-v] . exwm-floating-toggle-floating)
           ;;  Bind "s-escape" to switch workspace in loop.
           ([s-escape] .
            (lambda ()
