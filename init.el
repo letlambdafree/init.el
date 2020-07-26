@@ -437,6 +437,7 @@ There are two things you can do about this warning:
 ;; L10N="ko ja zh-CN" emerge -pv source-han-sans
 ;;
 ;; Menlo-10
+;; Monaco-10
 ;; Bitstream Vera Sans Mono-10
 ;; consolas-10
 ;; monospace-10
@@ -456,7 +457,7 @@ There are two things you can do about this warning:
 ;;                   "MyPrivateFont")
 (add-to-list 'face-ignored-fonts "baekmuk")
 ;; (setq use-default-font-for-symbols nil)
-(set-face-font 'default "menlo-10")
+(set-face-font 'default "Monaco-10")
 
 
 
