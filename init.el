@@ -2872,7 +2872,7 @@ If dired-mode, open the file"
 
   ;; You can hide the minibuffer and echo area when they're not used
   ;; but it works with additional frame ; error for me
-  ;; (setq exwm-workspace-minibuffer-position 'bottom)
+  ;; (setq exwm-workspace-minibuffer-position nil)
 
   (defun fhd/exwm-input-line-mode ()
     "Set exwm window to line-mode and show mode line"
