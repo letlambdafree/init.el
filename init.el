@@ -179,8 +179,8 @@ There are two things you can do about this warning:
 
 
 ;; exe-path
-(if (file-directory-p "~/.local/bin")
-    (add-to-list 'exec-path "~/.local/bin"))
+;; (if (file-directory-p "~/.local/bin")
+;;     (add-to-list 'exec-path "~/.local/bin"))
 
 ;; (setenv "PATH" (format "%s:%s" "~/.local/bin" (getenv "PATH")))
 
@@ -457,7 +457,7 @@ There are two things you can do about this warning:
 ;;                   "MyPrivateFont")
 (add-to-list 'face-ignored-fonts "baekmuk")
 ;; (setq use-default-font-for-symbols nil)
-(set-face-font 'default "Monaco-10")
+(set-face-font 'default "Menlo-10")
 
 
 
@@ -1048,31 +1048,32 @@ Video file plays on a fit window with original aspect raitio in exwm."
 
 ;; org-mode
 (require 'org)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(setq org-log-done t)
 ;; set maximum indentation for description lists
 (setq org-list-description-max-indent 5)
 ;; prevent demoting heading also shifting text inside sections
 (setq org-adapt-indentation nil)
 (org-babel-do-load-languages
- 'org-babel-load-languages
- '((perl . t)
-   (R . t)
-   (ditaa . t)
-   (gnuplot t)
-   (ruby . t)
-   (shell . t) ; from emacs 26.1, sh -> shell
-   (python . t)
-   (emacs-lisp . t)))
-(global-set-key (kbd "C-c a") 'org-agenda)
-(setq org-agenda-files '("~/.emacs.d/todo.org"))
-;;set priority range from A to C with default A
+ 'org-babel-load-languages '((perl . t)
+                             (R . t)
+                             (ditaa . t)
+                             (gnuplot t)
+                             (ruby . t)
+                             (shell . t) ; from emacs 26.1, sh -> shell
+                             (python . t)
+                             (emacs-lisp . t)))
+(setq org-agenda-files '("~/org/todo.org"
+                         "~/org/test.org"))
+;; set priority range from A to C with default A
 (setq org-highest-priority ?A)
 (setq org-lowest-priority ?C)
 (setq org-default-priority ?A)
-;;set colours for priorities
-(setq org-priority-faces
-      '((?A . (:foreground "#F0DFAF" :weight bold))
-        (?B . (:foreground "LightSteelBlue"))
-        (?C . (:foreground "OliveDrab"))))
+;; set colours for priorities
+(setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
+                           (?B . (:foreground "LightSteelBlue"))
+                           (?C . (:foreground "OliveDrab"))))
 (setq org-agenda-window-setup 'current-window)
 (define-key global-map (kbd "C-c c") 'org-capture)
 ;; (setq org-export-in-background t) ; free variable
@@ -1082,25 +1083,26 @@ Video file plays on a fit window with original aspect raitio in exwm."
          ,(concat "* TODO [#A] %?\n"
                   "SCHEDULED: %(org-insert-time-stamp"
                   "(org-read-date nil t \"+0d\"))\n%a\n"))))
-;;warn me of any deadlines in next 7 days
+;; warn me of any deadlines in next 7 days
 (setq org-deadline-warning-days 7)
-;;show me tasks scheduled or due in next fortnight
+;; show me tasks scheduled or due in next fortnight
 (setq org-agenda-span 'fortnight)
-;;don't show tasks as scheduled if they are already shown as a deadline
+;; don't show tasks as scheduled if they are already shown as a deadline
 (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
-;;don't give awarning colour to tasks with impending deadlines
-;;if they are scheduled to be done
+;; don't give awarning colour to tasks with impending deadlines
+;; if they are scheduled to be done
 (setq org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
-;;don't show tasks that are scheduled or have deadlines in the
-;;normal todo list
+;; don't show tasks that are scheduled or have deadlines in the
+;; normal todo list
 (setq org-agenda-todo-ignore-deadlines 'all)
 (setq org-agenda-todo-ignore-scheduled 'all)
-;;sort tasks in order of when they are due and then by priority
-(setq org-agenda-sorting-strategy
-      '((agenda deadline-up priority-down)
-        (todo priority-down category-keep)
-        (tags priority-down category-keep)
-        (search category-keep)))
+;; sort tasks in order of when they are due and then by priority
+(setq org-agenda-sorting-strategy '((agenda deadline-up priority-down)
+                                    (todo priority-down category-keep)
+                                    (tags priority-down category-keep)
+                                    (search category-keep)))
+;; (setq org-insert-mode-line-in-empty-file t)
+(setq org-cycle-separator-lines 2)
 
 
 
@@ -3410,7 +3412,7 @@ Position the cursor at it's beginning, according to the current mode."
         (mode . idl-mode)
         (mode . lisp-mode))))))
  '(package-selected-packages
-   '(markdown-mode helm-flycheck moonshot dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner goto-chg avy-flycheck ace-link helm-swoop vterm ace-mc fzf pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
+   '(markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner goto-chg avy-flycheck ace-link helm-swoop vterm ace-mc fzf pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
  '(temp-buffer-resize-mode nil)
  '(time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S")
  '(vc-annotate-background nil)
@@ -3455,7 +3457,7 @@ Position the cursor at it's beginning, according to the current mode."
  '(anzu-mode-line ((t :bold t :foreground "red" :inherit 'mode-line)))
  '(anzu-mode-line-no-match ((t :bold t :foreground "blue" :inherit 'mode-line)))
  '(calendar-today ((t (:underline (:color "SlateBlue1" :style wave)))))
- '(mu4e-modeline-face ((t :bold t :foreground "#3E3D31" :inherit 'mode-line)) t)
+ '(mu4e-modeline-face ((t :bold t :foreground "#3E3D31" :inherit 'mode-line)))
  '(rainbow-delimiters-depth-1-face ((t :foreground "white")))
  '(rainbow-delimiters-depth-2-face ((t :foreground "chocolate1")))
  '(rainbow-delimiters-depth-3-face ((t :foreground "aquamarine")))
