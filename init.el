@@ -963,18 +963,26 @@ Video file plays on a fit window with original aspect raitio in exwm."
              ;; 1920x1080
              ;; 1920x1080xN/A
              ;; 720x480x853:480
+             ;;
+             ;; ts -> 3 lines
+             ;; 1920x1080x16:9
+             ;;
+             ;; 1920x1080x16:9
              (b (cond ((eq (length b) 2) b)
                       ((eq (length b) 3) (delete "N/A" b))
-                      ((eq (length b) 4) (nthcdr 2 b))))
+                      ((eq (length b) 4) (nthcdr 2 b))
+                      (t (nthcdr (- (length b) 2) b))))
              (c (/ (string-to-number (nth 0 b))
                    (float (string-to-number
                            (if (nth 1 b) (nth 1 b) 1)))))
              ;; 1.77777777777777 -> 1.78
              (c (string-to-number (format "%0.2f" c))))
           (if (> c 2)
+
+
               (ryutas/aspect-ratio-h c)
             (ryutas/aspect-ratio-w c)))
-        (start-process "aspect-ratio-mpv" nil "mpv-with-sub" f)))
+        (start-process "aspect-ratio-mpv" nil "mpv-with-sub" f "--dired")))
      ;; default open with xdg-open
      (t (start-process "dired-xdg" nil "xdg-open" f)))))
 
@@ -1297,6 +1305,9 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   (when (require 'flycheck nil t)
     (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
     (add-hook 'elpy-mode-hook 'flycheck-mode))
+  ;; Use Python for REPL
+  ;; (setq python-shell-interpreter "python"
+  ;;       python-shell-interpreter-args "-i")
   ;; Use IPython for REPL
   (setq python-shell-interpreter "ipython"
         python-shell-interpreter-args "-i --simple-prompt"))
@@ -2588,6 +2599,7 @@ If dired-mode, open the file"
         ;; ("j" . buffer-expose-down-window)
         ;; ("k" . buffer-expose-up-window)
         ;; ("l" . buffer-expose-right-window)
+        ("<M-escape>" . buffer-expose-stars)
         ("<mouse-3>" . buffer-expose-mode)
         ("TAB" . ryutas/buffer-expose-toggle-page)
         ("<tab>" . ryutas/buffer-expose-toggle-page)
@@ -2595,6 +2607,7 @@ If dired-mode, open the file"
   :config
   (setq  buffer-expose-highlight-selected nil ; bg some buggy
          buffer-expose-wrap-vertically nil
+         buffer-expose-hide-modelines nil
          buffer-expose-show-current-buffer t ; temp solution
          buffer-expose-max-num-windows 64 ; default 12
          buffer-expose-rescale-factor 1.0 ; default 0.3
@@ -3412,7 +3425,7 @@ Position the cursor at it's beginning, according to the current mode."
         (mode . idl-mode)
         (mode . lisp-mode))))))
  '(package-selected-packages
-   '(markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner goto-chg avy-flycheck ace-link helm-swoop vterm ace-mc fzf pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
+   '(projectile markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner goto-chg avy-flycheck ace-link helm-swoop vterm ace-mc fzf pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
  '(temp-buffer-resize-mode nil)
  '(time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S")
  '(vc-annotate-background nil)
@@ -3457,7 +3470,7 @@ Position the cursor at it's beginning, according to the current mode."
  '(anzu-mode-line ((t :bold t :foreground "red" :inherit 'mode-line)))
  '(anzu-mode-line-no-match ((t :bold t :foreground "blue" :inherit 'mode-line)))
  '(calendar-today ((t (:underline (:color "SlateBlue1" :style wave)))))
- '(mu4e-modeline-face ((t :bold t :foreground "#3E3D31" :inherit 'mode-line)))
+ '(mu4e-modeline-face ((t :bold t :foreground "#3E3D31" :inherit 'mode-line)) t)
  '(rainbow-delimiters-depth-1-face ((t :foreground "white")))
  '(rainbow-delimiters-depth-2-face ((t :foreground "chocolate1")))
  '(rainbow-delimiters-depth-3-face ((t :foreground "aquamarine")))
