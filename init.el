@@ -2660,7 +2660,7 @@ If dired-mode, open the file"
   (face-spec-set 'buffer-expose-ace-char-face ; red
                  '((t :inherit eww-invalid-certificate)))
   (buffer-expose-mode))
-
+;; TODO: firefox multi-tab expose
 
 
 (use-package exwm
@@ -2752,8 +2752,18 @@ If dired-mode, open the file"
              (interactive)
              (if (eq (1+ exwm-workspace-current-index)
                      (length exwm-workspace--list))
-                 (exwm-workspace-switch 0)
-               (exwm-workspace-switch (1+ exwm-workspace-current-index)))))
+                 (progn
+                   (exwm-workspace-switch 0)
+                   (message "Workspace: %s"
+                            (propertize
+                             (number-to-string exwm-workspace-current-index)
+                             'face '(:foreground "red"))))
+               (progn
+                 (exwm-workspace-switch (1+ exwm-workspace-current-index))
+                 (message "Workspace: %s"
+                          (propertize
+                           (number-to-string exwm-workspace-current-index)
+                           'face '(:foreground "red")))))))
           ;; Bind "s-w" to switch workspace interactively.
           ([?\s-w] . exwm-workspace-switch)
           ;; Bind "s-1" to "s-9" to switch to a workspace by its index.
@@ -2766,7 +2776,6 @@ If dired-mode, open the file"
 
           ;; Bind "s-&" to launch applications ('M-&' also works if the output
           ;; buffer does not bother you).
-
           ([?\s-&] . (lambda (command)
                        (interactive (list (read-shell-command "$ ")))
                        (start-process-shell-command command nil command)))
