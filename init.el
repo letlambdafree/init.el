@@ -947,7 +947,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
                 "webm" "ogg" "asf" "mov" "ts"))
       (progn
         (let*
-            ((f (s-replace-regexp "[[(){}<>&'\";|\\ ]" "\\\\\\&" f))
+            ((f (s-replace-regexp "[[(){}<>&'\";|\\[:space:]]" "\\\\\\&" f))
              (a (shell-command-to-string
                  (format
                   "ffprobe -v error \
