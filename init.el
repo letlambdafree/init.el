@@ -2787,9 +2787,9 @@ If dired-mode, open the file"
                        (start-process-shell-command command nil command)))
 
           ;; Bind "s-<f2>" to "slock", a simple X display locker.
-          ;; ([s-f2] . (lambda ()
-          ;;             (interactive)
-          ;;             (start-process "" nil "/usr/bin/slock")))
+          ([s-f2] . (lambda ()
+                      (interactive)
+                      (start-process "" nil "/usr/bin/slock")))
           ))
 
   ;; for C-h to backspace
