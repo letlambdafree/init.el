@@ -310,7 +310,7 @@ There are two things you can do about this warning:
       max-lisp-eval-depth 10000 ; default 500
       large-file-warning-threshold 100000000 ; 100M byte
       mode-require-final-newline t
-      desktop-restore-eager 5 ; t is all buffer
+      desktop-restore-eager 1 ; t is all buffer
       case-replace nil ; Non-nil means should preserve case
       display-time-day-and-date nil ; display-time
       display-time-interval 60
@@ -320,16 +320,27 @@ There are two things you can do about this warning:
 
 ;; display-buffer
 (setq display-buffer-alist
-      '((".*" (display-buffer-reuse-window display-buffer-same-window))
-        (".*" . (nil . (reusable-frames 1)))))
-(setq even-window-sizes nil)
+      '((".*mpv$"
+         (display-buffer-reuse-window)
+         (display-buffer-in-previous-window)
+         (display-buffer-same-window)
+         ;; (inhibit-same-window . t)
+         (display-buffer-use-some-window))
+        (".*"
+         (display-buffer-reuse-window display-buffer-same-window))))
+(setq even-window-sizes nil) ; width-only height-only
 
+(defun toggle-window-dedicated ()
+  "Control whether or not Emacs is allowed to display another buffer in current window."
+  (interactive)
+  (message
+   (if (let (window (get-buffer-window (current-buffer)))
+         (set-window-dedicated-p window (not (window-dedicated-p window))))
+       "%s: Can't touch this!"
+     "%s is up for grabs.")
+   (current-buffer)))
 
-
-;; temporarily fix
-;; Fix slow helm frame popup in emacs-26 helm issue #1976
-;; (when (= emacs-major-version 26)
-;;   (setq x-wait-for-event-timeout nil))
+(global-set-key (kbd "C-c t") 'toggle-window-dedicated)
 
 
 
@@ -678,6 +689,7 @@ There are two things you can do about this warning:
 
 ;; erc
 (require 'erc)
+(require 'erc-join)
 (setq erc-server "irc.freenode.net")
 (setq erc-port 6667)
 (setq erc-nick pv-erc-nick1)
@@ -1026,11 +1038,11 @@ Video file plays on a fit window with original aspect raitio in exwm."
 ;; dired archive image view
 (require 'image-mode)
 (defun archive-image-view (direction)
-  "Simple viewer for archived comic book can read with DIRECTION."
+  "Archived file can be read with DIRECTION."
   (interactive)
   (quit-window 1)
   (archive-next-line direction)
-  (archive-view))
+  (ignore-errors (archive-view)))
 
 (define-key image-mode-map "x" (lambda ()
                                  (interactive)
@@ -1039,6 +1051,12 @@ Video file plays on a fit window with original aspect raitio in exwm."
                                  (interactive)
                                  (archive-image-view -1)))
 (define-key image-mode-map "q" (lambda ()
+                                 (interactive)
+                                 (quit-window 1)))
+;; (define-key archive-mode-map "q" (lambda ()
+;;                                    (interactive)
+;;                                    (quit-window 1)))
+(define-key dired-mode-map "q" (lambda ()
                                  (interactive)
                                  (quit-window 1)))
 
@@ -1152,7 +1170,7 @@ than having to call `add-to-list' multiple times."
     (add-to-list list item)))
 
 (jlp/add-to-list-multiple 'eshell-visual-commands
-                          '("vim" "rtorrent" "mpv"))
+                          '("vim" "rtorrent" "mpv" "mpv-with-sub"))
 (add-to-list 'eshell-visual-options
              '("git" "--help" "--paginate"))
 (add-to-list 'eshell-visual-subcommands
@@ -2505,7 +2523,20 @@ If dired-mode, open the file"
 
 
 
+(use-package vterm-toggle
+  :bind
+  ("s-'" . vterm-toggle)
+  ("s-\"" . vterm-toggle-cd)
+  (:map vterm-mode-map
+        ("s-p" . vterm-toggle-backward)
+        ("s-n" . vterm-toggle-forward)
+        ;; ("C-<enter>" . vterm-toggle-insert-cd)
+        ))
+
+
+
 (use-package eshell-toggle
+  :disabled
   :bind
   ("s-'" . eshell-toggle)
   :config
@@ -2545,7 +2576,7 @@ If dired-mode, open the file"
 (use-package shell-pop
   :disabled
   :bind
-  ("C-t" . shell-pop)
+  ("s-'" . shell-pop)
   :config
   (setq shell-pop-shell-type
         '("ansi-term" "*ansi-term*"
@@ -3460,7 +3491,7 @@ Position the cursor at it's beginning, according to the current mode."
         (mode . idl-mode)
         (mode . lisp-mode))))))
  '(package-selected-packages
-   '(vterm mentor projectile markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner goto-chg avy-flycheck ace-link helm-swoop ace-mc fzf pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
+   '(vterm-toggle vterm mentor projectile markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner goto-chg avy-flycheck ace-link helm-swoop ace-mc fzf pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
  '(temp-buffer-resize-mode nil)
  '(time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S")
  '(vc-annotate-background nil)
