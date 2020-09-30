@@ -69,7 +69,7 @@ There are two things you can do about this warning:
 
 
 ;; load some files
-(load-file "~/.emacs.d/.init.d/private.el") ; private data, no public
+;; (load-file "~/.emacs.d/.init.d/private.el") ; private data, no public
 ;; (load-file "~/.emacs.d/.init.d/my_scratch.el")
 ;; (load-file "~/.emacs.d/.init.d/prelude_functions.el")
 ;; (load-file "~/.emacs.d/.init.d/run-current-file.el")
@@ -276,7 +276,6 @@ There are two things you can do about this warning:
 (subword-mode) ; CamelWord Meta-f
 (size-indication-mode 1)
 (fringe-mode '(1 . 1))
-(desktop-save-mode)
 (delete-selection-mode)
 (auto-fill-mode -1)
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -310,11 +309,21 @@ There are two things you can do about this warning:
       max-lisp-eval-depth 10000 ; default 500
       large-file-warning-threshold 100000000 ; 100M byte
       mode-require-final-newline t
-      desktop-restore-eager 1 ; t is all buffer
       case-replace nil ; Non-nil means should preserve case
-      display-time-day-and-date nil ; display-time
-      display-time-interval 60
       register-preview-delay nil)
+
+
+
+;;time
+(require 'time)
+(setq display-time-day-and-date nil ; display-time
+      display-time-interval 60)
+
+
+;; desktop
+(require 'desktop)
+(desktop-save-mode)
+(setq  desktop-restore-eager 5) ; t is all buffer
 
 
 
@@ -330,17 +339,20 @@ There are two things you can do about this warning:
          (display-buffer-reuse-window display-buffer-same-window))))
 (setq even-window-sizes nil) ; width-only height-only
 
-(defun toggle-window-dedicated ()
-  "Control whether or not Emacs is allowed to display another buffer in current window."
+(defun ryutas/toggle-window-dedicated ()
+  "Toggle window dedicated."
   (interactive)
-  (message
-   (if (let (window (get-buffer-window (current-buffer)))
-         (set-window-dedicated-p window (not (window-dedicated-p window))))
-       "%s: Can't touch this!"
-     "%s is up for grabs.")
-   (current-buffer)))
+  (let ((window (get-buffer-window (current-buffer))))
+    (if (window-dedicated-p window)
+        (progn
+          (set-window-dedicated-p window nil)
+          (message "%s: free!" (current-buffer)))
+      (progn
+        (set-window-dedicated-p window t)
+        (message "%s: dedicated!" (current-buffer))
+        ))))
 
-(global-set-key (kbd "C-c t") 'toggle-window-dedicated)
+(global-set-key (kbd "C-c t") 'ryutas/toggle-window-dedicated)
 
 
 
@@ -666,21 +678,36 @@ There are two things you can do about this warning:
 
 ;; calendar
 (require 'calendar)
-(setq calendar-week-start-day 0)
-(setq mark-holidays-in-calendar t)
-(defconst calendar-korean-holidays
-  '((holiday-fixed 1 1 "신정")
-    (holiday-fixed 3 1 "삼일절")
-    (holiday-fixed 5 5 "어린이날")
-    (holiday-fixed 6 6 "현충일")
-    (holiday-fixed 8 15 "광복절")
-    (holiday-fixed 10 3 "개천절")
-    (holiday-fixed 10 9 "한글날")
-    (holiday-fixed 12 4 "내생일")
-    (holiday-fixed 12 25 "성탄절"))
-  "Pre-define Korean public holidays.")
-(setq calendar-holidays
-      (append calendar-korean-holidays holiday-local-holidays))
+(require 'solar)
+(require 'holidays)
+(setq calendar-week-start-day 0
+      calendar-mark-holidays-flag t
+      calendar-holiday-marker "holiday")
+      (defconst calendar-korean-holidays
+        '(;; solar
+          (holiday-fixed 1 1 "신정")
+          (holiday-fixed 3 1 "삼일절")
+          (holiday-fixed 5 5 "어린이날")
+          (holiday-fixed 6 6 "현충일")
+          (holiday-fixed 8 15 "광복절")
+          (holiday-fixed 10 3 "개천절")
+          (holiday-fixed 10 9 "한글날")
+          (holiday-fixed 12 25 "성탄절")
+          ;; lunar
+          (holiday-chinese 1 1 "설날")
+          (holiday-chinese 8 15 "추석"))
+        "Pre-define Korean public holidays.")
+(defconst calendar-personal-holidays
+  '(;; solar
+    (holiday-fixed 12 4 "My birthday")
+    ;; lunar
+    (holiday-chinese 5 25 "mother's birthday")
+    (holiday-chinese 7 17 "father's birthday"))
+  "Personal holidays.")
+
+(setq calendar-holidays (append calendar-personal-holidays
+                                calendar-korean-holidays
+                                holiday-local-holidays))
 (setq calendar-latitude +37.34)
 (setq calendar-longitude +127.59)
 (setq calendar-location-name "서울")
@@ -694,14 +721,10 @@ There are two things you can do about this warning:
 (setq erc-port 6667)
 (setq erc-nick pv-erc-nick1)
 (setq erc-user-full-name pv-erc-user-full-name)
-(setq erc-nickserv-passwords
-      `((freenode     ((erc-nick . ,pv-erc-freenode-pass1)
-                       ("nick-two" . ,pv-erc-freenode-pass2)))
-        (DALnet       (("nickname" . ,pv-erc-dalnet-pass1)))))
+;; (setq erc-password pv-erc-freenode-pass1)
 (setq erc-public-away-p nil)
 (setq erc-prompt-for-password nil)
 ;; automatically join channels when we start-up
-;; (require 'erc-autojoin)
 ;; (erc-autojoin-mode 1)
 ;; (erc :server "irc.freenode.net" :port 6667 :nick "ryutas")
 (setq erc-autojoin-channels-alist '(("freenode.net" "#emacs")))
@@ -710,6 +733,7 @@ There are two things you can do about this warning:
 ;; (erc-timestamp-mode 1)
 
 ;; highlight occurences of my nick in the emacs modeline
+(require 'erc-match)
 (erc-match-mode 1)
 (setq erc-keywords '("\\bemacs\\b"))
 (setq erc-current-nick-highlight-type 'nick-or-keyword)
@@ -805,7 +829,6 @@ When called repeatedly, cycle through the buffers."
 ;; Allow access to Less Secure Apps
 ;; (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu")
 ;; (require 'mu4e)
-
 ;; use mu4e for e-mail in emacs
 (setq mail-user-agent 'mu4e-user-agent)
 
@@ -816,6 +839,8 @@ When called repeatedly, cycle through the buffers."
 (setq mu4e-headers-time-format  "%H:%M:%S")
 (setq mu4e-headers-date-format  "%y/%m/%d")
 (setq mu4e-headers-auto-update  t)
+
+(setq mu4e-change-filenames-when-moving t)
 
 ;; (setq mu4e-index-cleanup nil ; don't do a full cleanup check
 ;;       mu4e-index-lazy-check t) ; don't consider up-to-date dirs
@@ -830,15 +855,16 @@ When called repeatedly, cycle through the buffers."
 ;; the 'All Mail' folder by pressing ``ma''.
 
 (setq mu4e-maildir-shortcuts
-      '( (:maildir "/INBOX"              :key ?i)
-         (:maildir "/[Gmail].Sent Mail"  :key ?s)
-         (:maildir "/[Gmail].Trash"      :key ?t)
-         (:maildir "/[Gmail].All Mail"   :key ?a)))
+      '((:maildir "/INBOX"              :key ?i)
+        (:maildir "/[Gmail].Sent Mail"  :key ?s)
+        (:maildir "/[Gmail].Trash"      :key ?t)
+        (:maildir "/[Gmail].All Mail"   :key ?a)))
 
 ;; allow for updating mail using 'U' in the main view:
-(setq mu4e-get-mail-command "offlineimap")
+(setq mu4e-get-mail-command "mbsync -a")
 (setq mu4e-update-interval 3600) ; sec
 (setq mu4e-index-update-in-background t)
+(setq mu4e-attachment-dir "~/")
 
 ;; something about ourselves
 (setq user-mail-address "formeu2s@gmail.com"
@@ -852,15 +878,17 @@ When called repeatedly, cycle through the buffers."
 ;; package 'gnutls-bin' in Debian/Ubuntu
 
 (require 'smtpmail)
+(require 'message)
 (setq message-send-mail-function 'smtpmail-send-it
-      starttls-use-gnutls t
-      smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
-      smtpmail-auth-credentials
-      '(("smtp.gmail.com" 587 "formeu2s@gmail.com" nil))
+      ;; starttls-use-gnutls t
+      ;; smtpmail-starttls-credentials '(("smtp.gmail.com" 587 nil nil))
+      ;; smtpmail-auth-credentials
+      ;; '(("smtp.gmail.com" 587 "formeu2s@gmail.com" nil))
       smtpmail-default-smtp-server "smtp.gmail.com"
       smtpmail-smtp-server "smtp.gmail.com"
       smtpmail-smtp-service 587)
-
+(setq smtpmail-queue-mail nil  ;; start in normal mode
+      smtpmail-queue-dir   "~/Mail/queue/cur")
 ;; don't save message to Sent Messages, Gmail/IMAP takes care of this
 (setq mu4e-sent-messages-behavior 'delete)
 
@@ -870,7 +898,6 @@ When called repeatedly, cycle through the buffers."
 
 
 (use-package mu4e-alert
-  :disabled
   :config
   ;; 1. notifications
   ;; - Emacs lisp implementation of the Desktop Notifications API
@@ -1041,8 +1068,9 @@ Video file plays on a fit window with original aspect raitio in exwm."
   "Archived file can be read with DIRECTION."
   (interactive)
   (quit-window 1)
-  (archive-next-line direction)
-  (ignore-errors (archive-view)))
+  (when (featurep 'archive-mode)
+    (archive-next-line direction)
+    (ignore-errors (archive-view))))
 
 (define-key image-mode-map "x" (lambda ()
                                  (interactive)
@@ -1154,6 +1182,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
 
 ;; eshell
 (require 'em-term)
+
 (defun eshell/goterm (prog &rest args)
   "Execute PROG with ARGS to term from eshell."
   (switch-to-buffer
@@ -1168,11 +1197,14 @@ than having to call `add-to-list' multiple times."
   (interactive)
   (dolist (item to-add)
     (add-to-list list item)))
-
+;; Original value was
+;; ("vi" "screen" "tmux" "top" "htop" "less" "more" "lynx" "links"
+;;  "ncftp" "mutt" "pine" "tin" "trn" "elm")
 (jlp/add-to-list-multiple 'eshell-visual-commands
-                          '("vim" "rtorrent" "mpv" "mpv-with-sub"))
+                          '("vim" "rtorrent" "radio" "mpv" "mpv-with-sub"
+                            "emerge"))
 (add-to-list 'eshell-visual-options
-             '("git" "--help" "--paginate"))
+             '(("git" "--help" "--paginate")))
 (add-to-list 'eshell-visual-subcommands
              '("git" "log" "diff" "show"))
 
@@ -2233,7 +2265,6 @@ If dired-mode, open the file"
 
 
 
-
 (use-package peep-dired
   :disabled
   :bind
@@ -2278,6 +2309,9 @@ If dired-mode, open the file"
                         ("mkv" "mp3" "mp4" "MP3" "MP4" "avi" "mpeg" "mpg"
                          "flv" "asf" "ogg" "mov" "mid" "midi" "wav" "aiff"
                          "flac" "webm" "wmv" "ts"))
+  (dired-rainbow-define subtitle "#696969"
+                        ("srt" "smi" "ass" "ssa" "sub" "idx" "ssf" "rt" "jss"
+                         "aqt" "dks" "ttxt" "ttml" "pjs" "psb" "usf" "sbv"))
   (dired-rainbow-define image "#f66d9b"
                         ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg"
                          "png" "psd" "eps" "svg" "bmp"))
@@ -2526,7 +2560,7 @@ If dired-mode, open the file"
 (use-package vterm-toggle
   :bind
   ("s-'" . vterm-toggle)
-  ("s-\"" . vterm-toggle-cd)
+  ;; ("s-\"" . vterm-toggle-cd)
   (:map vterm-mode-map
         ("s-p" . vterm-toggle-backward)
         ("s-n" . vterm-toggle-forward)
@@ -2546,13 +2580,47 @@ If dired-mode, open the file"
   ;; (eshell-toggle-init-function #'eshell-toggle-init-ansi-term)
   )
 
+(use-package eshell-prompt-extras
+  ;; pip install virtualenvwrapper
+  ;; And virtualenvwrapper.el
 
+  ;; epe-theme-lambda
+  ;; epe-theme-dakrone
+  ;; epe-theme-multiline-with-status
 
-(use-package eshell-git-prompt
+  ;; epe-show-python-info (default t)
+  ;; epe-git-dirty-char (default *)
+  ;; epe-git-untracked-char (default ?)
+  ;; epe-git-detached-HEAD-char (default D:)
+  ;; epe-path-style: (options: fish, single or full. default fish)
+
+  ;; epe-remote-face
+  ;; epe-venv-face
+  ;; epe-dir-face
+  ;; epe-git-face
+  ;; epe-symbol-face
+  ;; epe-sudo-symbol-face
+  ;; epe-status-face
   :config
-  ;; (setq eshell-prompt-function (lambda () "A simple prompt." "$ ")
-  ;;       eshell-prompt-regexp    "^$ ")
-  (eshell-git-prompt-use-theme 'powerline))
+  (with-eval-after-load "esh-opt"
+    (autoload 'epe-theme-lambda "eshell-prompt-extras")
+    (setq eshell-highlight-prompt nil
+          eshell-prompt-function 'epe-theme-lambda))
+
+  ;; (with-eval-after-load "esh-opt"
+  ;;   (require 'virtualenvwrapper)
+  ;;   (venv-initialize-eshell)
+  ;;   (autoload 'epe-theme-lambda "eshell-prompt-extras")
+  ;;   (setq eshell-highlight-prompt nil
+  ;;         eshell-prompt-function 'epe-theme-lambda))
+  )
+
+  (use-package eshell-git-prompt
+    :disabled
+    :config
+    ;; (setq eshell-prompt-function (lambda () "A simple prompt." "$ ")
+    ;;       eshell-prompt-regexp    "^$ ")
+    (eshell-git-prompt-use-theme 'powerline))
 
 
 
@@ -3553,4 +3621,4 @@ Position the cursor at it's beginning, according to the current mode."
 (provide 'init)
 ;;; init.el ends here
 
-;;  LocalWords:  rofime scccolor sccbuffer
+;;  LocalWords:  rofime scccolor sccbuffer ryutas
