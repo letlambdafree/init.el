@@ -23,9 +23,11 @@
 
 ;;; Commentary:
 
-;; one or three blank line (not two blank lines)
+;; One or three blank line (not two blank lines)
 ;;
-;; comment as detail as possible for me later
+;; Comment as detail as possible for me later
+;;
+;; To apply load-path needs restart Emacs
 
 ;;; Code:
 
@@ -179,8 +181,8 @@ There are two things you can do about this warning:
 
 
 ;; exe-path
-;; (if (file-directory-p "~/.local/bin")
-;;     (add-to-list 'exec-path "~/.local/bin"))
+(if (file-directory-p "~/.local/bin")
+    (add-to-list 'exec-path "~/.local/bin"))
 
 ;; (setenv "PATH" (format "%s:%s" "~/.local/bin" (getenv "PATH")))
 
@@ -320,6 +322,7 @@ There are two things you can do about this warning:
       display-time-interval 60)
 
 
+
 ;; desktop
 (require 'desktop)
 (desktop-save-mode)
@@ -328,29 +331,42 @@ There are two things you can do about this warning:
 
 
 ;; display-buffer
-(setq display-buffer-alist
-      '((".*mpv$"
-         (display-buffer-reuse-window)
-         (display-buffer-in-previous-window)
-         (display-buffer-same-window)
-         ;; (inhibit-same-window . t)
-         (display-buffer-use-some-window))
-        (".*"
-         (display-buffer-reuse-window display-buffer-same-window))))
-(setq even-window-sizes nil) ; width-only height-only
+(setq
+ display-buffer-alist
+ '((" - mpv$" ; mpv
+    (display-buffer-reuse-mode-window)
+    ;; (inhibit-same-window . t)
+    ;; (reusable-frames . nil)
+    ;; I usually execute the mpv command in vterm-mode
+    ;; if you are in another mode, mpv can't start with your selected window
+    ;; mpv only starts with the window with the mode you defined
+    ;; so, you are not interfered with mpv's restart situation by a script,
+    ;; it usually have been annoyed from stealing the focus about the window
+    ;; (mode . (dired-mode . (vterm-mode . (exwm-mode . nil)))))
+    (mode . (dired-mode vterm-mode term-mode eshell-mode)))
+   (".*" ; rest
+    (display-buffer-same-window)
+    ;; (inhibit-same-window . t)
+    ;;(reusable-frames . nil)
+    )))
+;; (display-buffer-record-window TYPE WINDOW BUFFER)
+(setq even-window-sizes t) ; width-only height-only
 
+;; dedicated window
+;; (setq mode-line-misc-info (cons '(:eval (if (window-dedicated-p)
+;;                                             "DEDICATED!"
+;;                                           "FREED!")) mode-line-misc-info))
 (defun ryutas/toggle-window-dedicated ()
-  "Toggle window dedicated."
+  "Make a selected window dedicated or not for 'display-buffer'."
   (interactive)
-  (let ((window (get-buffer-window (current-buffer))))
+  (let ((window (selected-window)))
     (if (window-dedicated-p window)
         (progn
           (set-window-dedicated-p window nil)
-          (message "%s: free!" (current-buffer)))
+          (message "%s: freed!" (current-buffer)))
       (progn
-        (set-window-dedicated-p window t)
-        (message "%s: dedicated!" (current-buffer))
-        ))))
+        (set-window-dedicated-p window t) ; t - "strongly"
+        (message "%s: dedicated!" (current-buffer))))))
 
 (global-set-key (kbd "C-c t") 'ryutas/toggle-window-dedicated)
 
@@ -375,21 +391,21 @@ There are two things you can do about this warning:
 
 
 
-;; autosave and backup
-(defconst my-backup-directory "~/.emacs.d/backup/")
-(make-directory my-backup-directory 1)
-(setq backup-directory-alist `((".*" . ,my-backup-directory))
-      make-backup-files t
-      backup-by-copying t
-      delete-old-versions t
-      version-control t
-      vc-make-backup-files t
-      kept-new-versions 1000
-      kept-old-versions 1000
-      auto-save-default t
-      auto-save-interval 100
-      auto-save-timeout 10
-      auto-save-file-name-transforms `((".*" ,my-backup-directory t)))
+;; autosave and backup ; temp disable for testing
+;; (defconst my-backup-directory "~/.emacs.d/backup/")
+;; (make-directory my-backup-directory 1)
+;; (setq backup-directory-alist `((".*" . ,my-backup-directory))
+;;       make-backup-files t
+;;       backup-by-copying t
+;;       delete-old-versions t
+;;       version-control t
+;;       vc-make-backup-files t
+;;       kept-new-versions 1000
+;;       kept-old-versions 1000
+;;       auto-save-default t
+;;       auto-save-interval 100
+;;       auto-save-timeout 10
+;;       auto-save-file-name-transforms `((".*" ,my-backup-directory t)))
 
 
 
@@ -827,7 +843,7 @@ When called repeatedly, cycle through the buffers."
 
 ;; mu4e
 ;; Allow access to Less Secure Apps
-;; (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu")
+(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu")
 ;; (require 'mu4e)
 ;; use mu4e for e-mail in emacs
 (setq mail-user-agent 'mu4e-user-agent)
@@ -1025,7 +1041,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
      ;; default open with xdg-open
      (t (start-process "dired-xdg" nil "xdg-open" f)))))
 
-;; (define-key dired-mode-map (kbd "C-<return>") #'ryutas/open-in-dired)
+(define-key dired-mode-map (kbd "C-<return>") #'ryutas/open-in-dired)
 ;; (define-key dired-mode-map (kbd "<mouse-1>") #'dired-find-file)
 ;; (define-key
 ;;   dired-mode-map (kbd "C-<return>") #'dired-do-async-shell-command)
@@ -1064,13 +1080,14 @@ Video file plays on a fit window with original aspect raitio in exwm."
 
 ;; dired archive image view
 (require 'image-mode)
+(require 'arc-mode)
+;; (declare-function archive-next-line arc-mode.el)
 (defun archive-image-view (direction)
   "Archived file can be read with DIRECTION."
   (interactive)
   (quit-window 1)
-  (when (featurep 'archive-mode)
-    (archive-next-line direction)
-    (ignore-errors (archive-view))))
+  (archive-next-line direction)
+  (ignore-errors (archive-view)))
 
 (define-key image-mode-map "x" (lambda ()
                                  (interactive)
@@ -1081,9 +1098,9 @@ Video file plays on a fit window with original aspect raitio in exwm."
 (define-key image-mode-map "q" (lambda ()
                                  (interactive)
                                  (quit-window 1)))
-;; (define-key archive-mode-map "q" (lambda ()
-;;                                    (interactive)
-;;                                    (quit-window 1)))
+(define-key archive-mode-map "q" (lambda ()
+                                   (interactive)
+                                   (quit-window 1)))
 (define-key dired-mode-map "q" (lambda ()
                                  (interactive)
                                  (quit-window 1)))
@@ -1201,7 +1218,7 @@ than having to call `add-to-list' multiple times."
 ;; ("vi" "screen" "tmux" "top" "htop" "less" "more" "lynx" "links"
 ;;  "ncftp" "mutt" "pine" "tin" "trn" "elm")
 (jlp/add-to-list-multiple 'eshell-visual-commands
-                          '("vim" "rtorrent" "radio" "mpv" "mpv-with-sub"
+                          '("vim" "rtorrent" "mpv" "mpv-with-sub"
                             "emerge"))
 (add-to-list 'eshell-visual-options
              '(("git" "--help" "--paginate")))
@@ -1260,7 +1277,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 
 ;; my git
-(load "~/git/exwm-aspect-ratio/exwm-aspect-ratio")
+;; (load "~/git/exwm-aspect-ratio/exwm-aspect-ratio")
 
 
 
@@ -1385,6 +1402,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 
 (use-package company
+  :diminish
   :bind
   (:map prog-mode-map
         ("C-i" . company-indent-or-complete-common)
@@ -1577,7 +1595,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
         ("C-c C-l" . helm-minibuffer-history))
   :config
   (require 'helm-config)
-  (setq helm-split-window-inside-p t ; nil for whole window
+  (setq helm-split-window-inside-p t ; nil for whole frame
         helm-move-to-line-cycle-in-source t
         ;; search for library in `require' and `declare-function' sexp
         helm-ff-search-library-in-sexp t
@@ -1586,7 +1604,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
         helm-ff-file-name-history-use-recentf t
         helm-echo-input-in-header-line t
         helm-locate-create-db-command "updatedb" ; "updatedb -l 0 -o %s -U %s"
-        helm-autoresize-max-height 25
+        helm-autoresize-max-height 20 ; percent of Helm window’s frame height
         helm-autoresize-min-height 0
         helm-ff-skip-boring-files t
         helm-M-x-fuzzy-match t ; optional fuzzy matching for helm-M-x
@@ -1819,7 +1837,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 
 (use-package spaceline
-  :demand ; 0.5s loading time
+  :demand ; consume 0.5s loading time
   :config
   (require 'spaceline-config)
   ;; need to compile with spaceline-compile
@@ -1827,9 +1845,10 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
         spaceline-separator-dir-right '(right . right)
         powerline-default-separator 'box ; arrow box
         spaceline-highlight-face-func 'spaceline-highlight-face-modified
+        ;; spaceline-purpose-hide-if-not-dedicated t
         anzu-cons-mode-line-p nil
         spaceline-minor-modes-separator ","
-        powerline-height 22) ; do not match emacs and exwm
+        powerline-height 22) ; it don't match emacs and exwm as font
   (face-spec-set 'mu4e-modeline-face '((t :bold t
                                           :foreground "#3E3D31"
                                           :inherit 'mode-line)))
@@ -1849,6 +1868,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   (spaceline-toggle-flycheck-error-on)
   (spaceline-toggle-flycheck-warning-on)
   (spaceline-toggle-flycheck-info-on)
+  ;; (spaceline-toggle-purpose-on)
   (spaceline-toggle-hud-off) ; the currently visible part of the buffer
   (spaceline-toggle-buffer-encoding-abbrev-off) ; unix, dos or mac
   (spaceline-toggle-minor-modes-off) ; can be tweaked with diminish
@@ -2094,7 +2114,6 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 
 (use-package zygospore
-  :disabled
   :bind
   ("C-x 1" . zygospore-toggle-delete-other-windows))
 
@@ -2102,7 +2121,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 (use-package zoom-window ; better than zygospore
   :bind
-  ("C-x 1" . ryutas/zoom-window-zoom)
+  ("C-x C-1" . ryutas/zoom-window-zoom)
   :config
   ;; (custom-set-variables '(zoom-window-mode-line-color "red4"))
 
@@ -2193,7 +2212,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 (use-package goto-chg
   :bind
   ("C-' '" . goto-last-change)
-  ;; ("C-' \"". goto-last-change-reverse) ; error
+  ("C-' \"". goto-last-change-reverse) ; error
   )
 
 
@@ -2581,6 +2600,7 @@ If dired-mode, open the file"
   )
 
 (use-package eshell-prompt-extras
+  :disabled
   ;; pip install virtualenvwrapper
   ;; And virtualenvwrapper.el
 
@@ -2634,6 +2654,12 @@ If dired-mode, open the file"
 
 (use-package esh-autosuggest
   :hook (eshell-mode . esh-autosuggest-mode))
+
+
+
+;; aweshell
+;; (add-to-list 'load-path "~/.emacs.d/mylisp/aweshell")
+;; (require 'aweshell)
 
 
 
@@ -3012,11 +3038,16 @@ If dired-mode, open the file"
       (setq ar-toggle t)
       (ryutas/aspect-ratio-w)))
 
+  ;; (add-hook 'exwm-manage-finish-hook
+  ;;           (lambda ()
+  ;;             (when (or (and (string= "mpv" exwm-class-name) ; mpv-with
+  ;;                            (not (get-process "aspect-ratio-mpv")))
+  ;;                       (string= "Picture-in-Picture" exwm-title))
+  ;;               (ryutas/aspect-ratio-w 1.78))))
+
   (add-hook 'exwm-manage-finish-hook
             (lambda ()
-              (when (or (and (string= "mpv" exwm-class-name) ; mpv-with
-                             (not (get-process "aspect-ratio-mpv")))
-                        (string= "Picture-in-Picture" exwm-title))
+              (when (string= "Picture-in-Picture" exwm-title)
                 (ryutas/aspect-ratio-w 1.78))))
 
   ;; You can hide the minibuffer and echo area when they're not used
@@ -3231,10 +3262,10 @@ If dired-mode, open the file"
         (goto-char (point-min))
         (while
             (looking-at "^[;\n]")
-                           (forward-line 1))
-    (newline)
-    (forward-line -1)
-    (write-region (point) (point-max) scratch-filename))))
+          (forward-line 1))
+        (newline)
+        (forward-line -1)
+        (write-region (point) (point-max) scratch-filename))))
 
 (defun my-fortune2scratch ()
   "Return a comment-padded fortune cookie."
@@ -3559,7 +3590,7 @@ Position the cursor at it's beginning, according to the current mode."
         (mode . idl-mode)
         (mode . lisp-mode))))))
  '(package-selected-packages
-   '(vterm-toggle vterm mentor projectile markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner goto-chg avy-flycheck ace-link helm-swoop ace-mc fzf pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
+   '(goto-chg fzf vterm-toggle vterm mentor projectile markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner avy-flycheck ace-link helm-swoop ace-mc pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
  '(temp-buffer-resize-mode nil)
  '(time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S")
  '(vc-annotate-background nil)
@@ -3604,7 +3635,7 @@ Position the cursor at it's beginning, according to the current mode."
  '(anzu-mode-line ((t :bold t :foreground "red" :inherit 'mode-line)))
  '(anzu-mode-line-no-match ((t :bold t :foreground "blue" :inherit 'mode-line)))
  '(calendar-today ((t (:underline (:color "SlateBlue1" :style wave)))))
- '(mu4e-modeline-face ((t :bold t :foreground "#3E3D31" :inherit 'mode-line)) t)
+ '(mu4e-modeline-face ((t :bold t :foreground "#3E3D31" :inherit 'mode-line)))
  '(rainbow-delimiters-depth-1-face ((t :foreground "white")))
  '(rainbow-delimiters-depth-2-face ((t :foreground "chocolate1")))
  '(rainbow-delimiters-depth-3-face ((t :foreground "aquamarine")))
@@ -3622,3 +3653,4 @@ Position the cursor at it's beginning, according to the current mode."
 ;;; init.el ends here
 
 ;;  LocalWords:  rofime scccolor sccbuffer ryutas
+(put 'upcase-region 'disabled nil)
