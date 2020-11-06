@@ -379,7 +379,12 @@ There are two things you can do about this warning:
       x-select-enable-clipboard-manager nil
       select-enable-clipboard t
       select-enable-primary nil)
-
+;; Pull from PRIMARY (same as middle mouse click)
+(defun paste-primary-selection ()
+  (interactive)
+  (insert (gui-get-selection 'PRIMARY)))
+(global-set-key (kbd "C-M-y") 'paste-primary-selection)
+;; (global-set-key (kbd "S-<insert>") 'paste-primary-selection)
 
 
 ;; mouse scrolling
