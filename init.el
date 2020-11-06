@@ -175,7 +175,7 @@ There are two things you can do about this warning:
 ;; shell
 ;; (setq binary-process-input t)
 ;; (setq w32-quote-process-args ?\")
-(setq shell-file-name "zsh")
+(setq shell-file-name "bash")
 (setenv "SHELL" shell-file-name)
 
 
@@ -283,7 +283,7 @@ There are two things you can do about this warning:
 (fset 'yes-or-no-p 'y-or-n-p)
 (normal-erase-is-backspace-mode) ; del key deletes at point
 (display-time-mode -1)
-
+(global-so-long-mode 1) ; such as json file
 
 
 ;; basic variables
@@ -312,7 +312,9 @@ There are two things you can do about this warning:
       large-file-warning-threshold 100000000 ; 100M byte
       mode-require-final-newline t
       case-replace nil ; Non-nil means should preserve case
-      register-preview-delay nil)
+      register-preview-delay nil
+      ;; bidi-inhibit-bpa t
+      )
 
 
 
@@ -450,9 +452,9 @@ There are two things you can do about this warning:
       (term-char-mode)
     (term-line-mode)))
 
-(defadvice ansi-term (before force-zsh activate)
-  "Force 'ansi-term' to use zsh without prompt."
-  (interactive (list "/usr/bin/zsh")))
+;; (defadvice ansi-term (before force-zsh activate)
+;;   "Force 'ansi-term' to use zsh without prompt."
+;;   (interactive (list "/usr/bin/zsh")))
 
 (defadvice term-handle-exit
     (after term-kill-buffer-on-exit activate)
@@ -2675,7 +2677,7 @@ If dired-mode, open the file"
   (setq shell-pop-shell-type
         '("ansi-term" "*ansi-term*"
           (lambda () (ansi-term shell-pop-term-shell))))
-  (setq shell-pop-term-shell "/bin/zsh")
+  (setq shell-pop-term-shell "/bin/bash")
   ;; need to do this manually or not picked up by `shell-pop'
   (shell-pop--set-shell-type 'shell-pop-shell-type shell-pop-shell-type))
 
