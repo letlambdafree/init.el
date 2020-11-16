@@ -85,6 +85,12 @@ There are two things you can do about this warning:
 
 
 
+;; for gpg passphrase
+(setq epg-gpg-program "gpg2")
+(setf epg-pinentry-mode 'loopback)
+
+
+
 ;; Load theme
 (add-hook 'emacs-startup-hook
           (lambda () (load-theme 'wheatgrass)))
@@ -345,7 +351,8 @@ There are two things you can do about this warning:
     ;; so, you are not interfered with mpv's restart situation by a script,
     ;; it usually have been annoyed from stealing the focus about the window
     ;; (mode . (dired-mode . (vterm-mode . (exwm-mode . nil)))))
-    (mode . (dired-mode vterm-mode term-mode eshell-mode)))
+    ;; (mode . (dired-mode vterm-mode term-mode eshell-mode)))
+    (mode . (eshell-mode))) ; mpv's dedicated window
    (".*" ; rest
     (display-buffer-same-window)
     ;; (inhibit-same-window . t)
@@ -1226,7 +1233,7 @@ than having to call `add-to-list' multiple times."
 ;;  "ncftp" "mutt" "pine" "tin" "trn" "elm")
 (jlp/add-to-list-multiple 'eshell-visual-commands
                           '("vim" "rtorrent" "mpv" "mpv-with-sub"
-                            "emerge"))
+                            "emerge" "radio"))
 (add-to-list 'eshell-visual-options
              '(("git" "--help" "--paginate")))
 (add-to-list 'eshell-visual-subcommands
@@ -2579,6 +2586,7 @@ If dired-mode, open the file"
   :config
   (setq vterm-buffer-name-string "vterm %s")
   (setq vterm-min-window-width 59) ; for tmux date
+  (setq vterm-max-scrollback 100000) ; defaul: 1000
   (setq vterm-kill-buffer-on-exit t))
 
 
@@ -2605,6 +2613,8 @@ If dired-mode, open the file"
   ;; (eshell-toggle-run-command nil)
   ;; (eshell-toggle-init-function #'eshell-toggle-init-ansi-term)
   )
+
+
 
 (use-package eshell-prompt-extras
   :disabled
