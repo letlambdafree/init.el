@@ -87,7 +87,7 @@ There are two things you can do about this warning:
 
 ;; for gpg passphrase
 (setq epg-gpg-program "gpg2")
-(setf epg-pinentry-mode 'loopback)
+(setq epg-pinentry-mode 'loopback)
 
 
 
@@ -187,8 +187,8 @@ There are two things you can do about this warning:
 
 
 ;; exe-path
-(if (file-directory-p "~/.local/bin")
-    (add-to-list 'exec-path "~/.local/bin"))
+;; (if (file-directory-p "~/.local/bin")
+;;     (add-to-list 'exec-path "~/.local/bin"))
 
 ;; (setenv "PATH" (format "%s:%s" "~/.local/bin" (getenv "PATH")))
 
@@ -229,7 +229,10 @@ There are two things you can do about this warning:
 ;;                     :background "black"
 ;;                     :box nil)
 (global-set-key (kbd "<mode-line><double-mouse-1>")
-                'zoom-window-zoom)
+                'ryutas/zoom-window-zoom) ; error for zoom-window-zoom
+(global-set-key (kbd "<mode-line><mouse-3>")
+                'ryutas/zoom-window-zoom)
+
 
 
 ;; setup-minibuffer
@@ -335,6 +338,12 @@ There are two things you can do about this warning:
 (require 'desktop)
 (desktop-save-mode)
 (setq  desktop-restore-eager 5) ; t is all buffer
+
+
+
+;; browse-url
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "firefox")
 
 
 
@@ -925,10 +934,30 @@ When called repeatedly, cycle through the buffers."
 ;; don't keep message buffers around
 (setq message-kill-buffer-on-exit t)
 
+;; attempt to show images when viewing messages
+;; (setq mu4e-view-show-images t)
+
+;; (defun ryutas/mu4e-check-passphrase ()
+;;   "Test."
+;;   (start-process "" nil "/usr/bin/gpg2 --quiet \
+;;                                 --for-your-eyes-only \
+;;                                 --no-tty \
+;;                                 --decrypt \
+;;                                 ~/.authinfo.gpg"))
+
+;; (add-hook 'mu4e-update-pre-hook #'ryutas/mu4e-check-passphrase)
+
+;; (add-to-list 'mu4e-view-actions
+;;              '("aViewInBrowser" . mu4e-action-view-in-browser) t)
+;; (add-to-list 'mu4e-view-actions
+;;              '("xViewInBrowser" . mu4e-action-view-with-xwidget) t)
+
 
 
 (use-package mu4e-alert
   :config
+  ;; fringe gntp growl ignore ignore libnotify log message mode-line
+  ;; momentary notifications notifier osx-notifier toaster x11
   ;; 1. notifications
   ;; - Emacs lisp implementation of the Desktop Notifications API
   ;; 2. libnotify
@@ -941,8 +970,17 @@ When called repeatedly, cycle through the buffers."
   (setq mu4e-alert-interesting-mail-query
         (concat "flag:unread"
                 " AND NOT flag:trashed"
+                " AND NOT flag:spam" ; test
                 ;; " AND NOT maildir:"
-                "\"/[Gmail].All Mail\"")))
+                ;; "\"/[Gmail].All Mail\""
+                )))
+
+
+
+(use-package pinentry ; need for not emacs' part
+  :config
+  (pinentry-start)
+  )
 
 
 
@@ -1233,7 +1271,7 @@ than having to call `add-to-list' multiple times."
 ;;  "ncftp" "mutt" "pine" "tin" "trn" "elm")
 (jlp/add-to-list-multiple 'eshell-visual-commands
                           '("vim" "rtorrent" "mpv" "mpv-with-sub"
-                            "emerge" "radio"))
+                            "emerge"))
 (add-to-list 'eshell-visual-options
              '(("git" "--help" "--paginate")))
 (add-to-list 'eshell-visual-subcommands
@@ -1260,9 +1298,8 @@ than having to call `add-to-list' multiple times."
   "Open youtube URL links with mpv."
   (interactive)
   (start-process "mpv" nil "mpv" url))
-
-(setq browse-url-browser-function '(("youtube" . mpv-play-url)
-                                    ("." . eww-browse-url)))
+;; (setq browse-url-browser-function '(("youtube" . mpv-play-url)
+;;                                     ("." . eww-browse-url)))
 (setq eww-download-directory "/mnt/data/Downloads/")
 (setq shr-use-fonts nil) ; proportional fonts for text
 (setq shr-use-colors t) ; respect color specifications in the HTML
@@ -2586,7 +2623,7 @@ If dired-mode, open the file"
   :config
   (setq vterm-buffer-name-string "vterm %s")
   (setq vterm-min-window-width 59) ; for tmux date
-  (setq vterm-max-scrollback 100000) ; defaul: 1000
+  (setq vterm-max-scrollback 10000) ; default: 1000, default-max:100000
   (setq vterm-kill-buffer-on-exit t))
 
 
@@ -3607,7 +3644,7 @@ Position the cursor at it's beginning, according to the current mode."
         (mode . idl-mode)
         (mode . lisp-mode))))))
  '(package-selected-packages
-   '(goto-chg fzf vterm-toggle vterm mentor projectile markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner avy-flycheck ace-link helm-swoop ace-mc pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
+   '(pinentry goto-chg fzf vterm-toggle vterm mentor projectile markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner avy-flycheck ace-link helm-swoop ace-mc pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
  '(temp-buffer-resize-mode nil)
  '(time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S")
  '(vc-annotate-background nil)
