@@ -342,8 +342,14 @@ There are two things you can do about this warning:
 
 
 ;; browse-url
-(setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "firefox")
+(setq
+ browse-url-generic-program "firefox"
+ browse-url-browser-function
+ ;; (REGEXP . FUNCTION)
+ '(("mu4e-.*.html" . browse-url-generic) ; for mu4e-action-view-in-browser
+   ("youtube.com/watch" . mpv-play-url) ; for playing youtube in eww
+   ("." . eww-browse-url) ; for rest
+   ))
 
 
 
@@ -361,7 +367,7 @@ There are two things you can do about this warning:
     ;; it usually have been annoyed from stealing the focus about the window
     ;; (mode . (dired-mode . (vterm-mode . (exwm-mode . nil)))))
     ;; (mode . (dired-mode vterm-mode term-mode eshell-mode)))
-    (mode . (eshell-mode))) ; mpv's dedicated window
+    (mode . (messages-buffer-mode))) ; mpv's dedicated window
    (".*" ; rest
     (display-buffer-same-window)
     ;; (inhibit-same-window . t)
@@ -386,7 +392,7 @@ There are two things you can do about this warning:
         (set-window-dedicated-p window t) ; t - "strongly"
         (message "%s: dedicated!" (current-buffer))))))
 
-(global-set-key (kbd "C-c t") 'ryutas/toggle-window-dedicated)
+;; (global-set-key (kbd "C-c t") 'ryutas/toggle-window-dedicated)
 
 
 
@@ -418,18 +424,17 @@ There are two things you can do about this warning:
 ;; (defconst my-backup-directory "~/.emacs.d/backup/")
 ;; (make-directory my-backup-directory 1)
 ;; (setq backup-directory-alist `((".*" . ,my-backup-directory))
-;;       make-backup-files t
 ;;       backup-by-copying t
 ;;       delete-old-versions t
 ;;       version-control t
 ;;       vc-make-backup-files t
 ;;       kept-new-versions 1000
 ;;       kept-old-versions 1000
-;;       auto-save-default t
 ;;       auto-save-interval 100
 ;;       auto-save-timeout 10
 ;;       auto-save-file-name-transforms `((".*" ,my-backup-directory t)))
-
+(setq make-backup-files nil)
+(setq auto-save-default nil)
 
 
 ;; savehist
@@ -864,10 +869,21 @@ When called repeatedly, cycle through the buffers."
 
 
 
+;;; xwidget-webkit
+;; adapt webkit according to window configuration chagne automatically
+;; without this hook, every time you change your window configuration,
+;; you must press 'a' to adapt webkit content to new window size
+;; (add-hook 'window-configuration-change-hook
+;;           (lambda ()
+;;             (when (equal major-mode 'xwidget-webkit-mode)
+;;               (xwidget-webkit-adjust-size-dispatch))))
+
+
+
 ;; mu4e
 ;; Allow access to Less Secure Apps
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu")
-;; (require 'mu4e)
+;; (require 'mu4e) ; error when USE=emacs emerge mu in Gentoo
 ;; use mu4e for e-mail in emacs
 (setq mail-user-agent 'mu4e-user-agent)
 
@@ -880,6 +896,9 @@ When called repeatedly, cycle through the buffers."
 (setq mu4e-headers-auto-update  t)
 
 (setq mu4e-change-filenames-when-moving t)
+
+;; Don't ask to quit
+(setq mu4e-confirm-quit nil)
 
 ;; (setq mu4e-index-cleanup nil ; don't do a full cleanup check
 ;;       mu4e-index-lazy-check t) ; don't consider up-to-date dirs
@@ -935,23 +954,14 @@ When called repeatedly, cycle through the buffers."
 (setq message-kill-buffer-on-exit t)
 
 ;; attempt to show images when viewing messages
-;; (setq mu4e-view-show-images t)
+(setq mu4e-view-show-images t)
 
-;; (defun ryutas/mu4e-check-passphrase ()
-;;   "Test."
-;;   (start-process "" nil "/usr/bin/gpg2 --quiet \
-;;                                 --for-your-eyes-only \
-;;                                 --no-tty \
-;;                                 --decrypt \
-;;                                 ~/.authinfo.gpg"))
-
-;; (add-hook 'mu4e-update-pre-hook #'ryutas/mu4e-check-passphrase)
-
-;; (add-to-list 'mu4e-view-actions
-;;              '("aViewInBrowser" . mu4e-action-view-in-browser) t)
-;; (add-to-list 'mu4e-view-actions
-;;              '("xViewInBrowser" . mu4e-action-view-with-xwidget) t)
-
+(with-eval-after-load "mu4e"
+  ;; (add-to-list 'mu4e-view-actions ; buggy and flickering
+  ;;              '("xViewInBrowser" . mu4e-action-view-with-xwidget) t)
+  (add-to-list 'mu4e-view-actions
+               '("aViewInBrowser" . mu4e-action-view-in-browser) t))
+(add-hook 'after-init-hook #'mu4e)
 
 
 (use-package mu4e-alert
@@ -977,10 +987,26 @@ When called repeatedly, cycle through the buffers."
 
 
 
-(use-package pinentry ; need for not emacs' part
+(use-package pinentry ; for not emacs' part such as mbsync's PassCmd
+  ;;
+  ;; ~/.gnupg/gpg-agent.conf
+  ;; allow-emacs-pinentry
+  ;; allow-loopback-pinentry
+  ;;
+  ;; gpgconf --reload gpg-agent
+  ;;
+  ;; ~/.emacs.d/init.el
+  ;; (setq epg-pinentry-mode 'loopback)
+  ;; (pinentry-start)
+  ;;
+  ;; eselect pinentry list
+  ;; Available pinentry binary implementations:
+  ;; [1]   pinentry-gtk-2
+  ;; [2]   pinentry-curses *
+  ;; [3]   pinentry-tty
+  ;;
   :config
-  (pinentry-start)
-  )
+  (pinentry-start))
 
 
 
@@ -1158,6 +1184,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
                                  (quit-window 1)))
 
 
+
 ;; recentf
 (require 'recentf)
 (setq recentf-max-menu-items 30)
@@ -1246,11 +1273,16 @@ Video file plays on a fit window with original aspect raitio in exwm."
                                     (search category-keep)))
 ;; (setq org-insert-mode-line-in-empty-file t)
 (setq org-cycle-separator-lines 2)
-
+(setq org-special-ctrl-a/e nil) ; t, nil, 'reversed
 
 
 ;; eshell
+(require 'eshell)
 (require 'em-term)
+;; (require 'em-smart) ; little buggy
+;; (setq eshell-where-to-jump 'begin)
+;; (setq eshell-review-quick-commands nil)
+;; (setq eshell-smart-space-goes-to-end t)
 
 (defun eshell/goterm (prog &rest args)
   "Execute PROG with ARGS to term from eshell."
@@ -1266,12 +1298,12 @@ than having to call `add-to-list' multiple times."
   (interactive)
   (dolist (item to-add)
     (add-to-list list item)))
+
 ;; Original value was
 ;; ("vi" "screen" "tmux" "top" "htop" "less" "more" "lynx" "links"
 ;;  "ncftp" "mutt" "pine" "tin" "trn" "elm")
 (jlp/add-to-list-multiple 'eshell-visual-commands
-                          '("vim" "rtorrent" "mpv" "mpv-with-sub"
-                            "emerge"))
+                          '("vim" "rtorrent" "ncdu"))
 (add-to-list 'eshell-visual-options
              '(("git" "--help" "--paginate")))
 (add-to-list 'eshell-visual-subcommands
@@ -1298,8 +1330,7 @@ than having to call `add-to-list' multiple times."
   "Open youtube URL links with mpv."
   (interactive)
   (start-process "mpv" nil "mpv" url))
-;; (setq browse-url-browser-function '(("youtube" . mpv-play-url)
-;;                                     ("." . eww-browse-url)))
+
 (setq eww-download-directory "/mnt/data/Downloads/")
 (setq shr-use-fonts nil) ; proportional fonts for text
 (setq shr-use-colors t) ; respect color specifications in the HTML
@@ -1637,15 +1668,23 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   ("C-x C-f" . helm-find-files)
   ("M-y" . helm-show-kill-ring)
   (:map helm-map
-        ("<tab>" . helm-execute-persistent-action)
+        ([tab] . helm-next-line)
+        ([backtab] . helm-previous-line)
+        ("C-<return>" . helm-select-action)
+        ("C-S-SPC" . helm-next-source) ; default C-o
+        ;; ("<tab>" . helm-execute-persistent-action)
         ("C-i" . helm-execute-persistent-action)
-        ("C-z" . helm-select-action))
+        )
   (:map shell-mode-map
         ("C-c C-l" . helm-comint-input-ring))
   (:map minibuffer-local-map
         ("C-c C-l" . helm-minibuffer-history))
   :config
   (require 'helm-config)
+  ;; like posframe in ivy
+  ;; (setq helm-display-function 'helm-display-buffer-in-own-frame
+  ;;       helm-display-buffer-reuse-frame t
+  ;;       helm-use-undecorated-frame-option t)
   (setq helm-split-window-inside-p t ; nil for whole frame
         helm-move-to-line-cycle-in-source t
         ;; search for library in `require' and `declare-function' sexp
@@ -1763,6 +1802,33 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 
 (use-package helm-flycheck)
+
+
+
+(use-package helm-posframe ; like ivy-posframe
+  :config
+  (setq helm-posframe-parameters
+        '(
+          ;; (left-fringe . 5)
+          ;; (right-fringe . 5)
+          (parent-frame . nil) ; for exwm
+          ))
+  (setq helm-posframe-poshandler 'posframe-poshandler-frame-center)
+  (setq helm-posframe-border-width 2)
+  (setq posframe-mouse-banish nil)
+  ;; (setq helm-posframe-border-color "gray")
+  ;; (setq helm-posframe-width 120)
+  ;; (setq helm-posframe-height 20)
+  (helm-posframe-enable)
+  ;; (helm-posframe-disable)
+  ;;
+  ;; Remove annoying error message that displayed everytime after closing
+  ;; helm-posframe. The message is:
+  ;; Error during redisplay: (run-hook-with-args helm--delete-frame-function
+  ;; #<frame 0x5586330a1f90>) signaled (user-error "No recursive edit is in
+  ;; progress")
+  (remove-hook 'delete-frame-functions 'helm--delete-frame-function)
+  )
 
 
 
@@ -2055,6 +2121,21 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 
 
+(use-package which-key-posframe
+  :config
+  (setq which-key-posframe-parameters
+        '(
+          (parent-frame . nil) ; for exwm
+          ))
+  (setq which-key-posframe-poshandler 'posframe-poshandler-frame-center)
+  (setq which-key-posframe-border-width 2)
+  (setq posframe-mouse-banish nil)
+  ;; (setq which-key-posframe-width 120)
+  ;; (setq which-key-posframe-height 20)
+  (which-key-posframe-mode))
+
+
+
 (use-package guide-key
   :disabled
   :diminish
@@ -2342,6 +2423,22 @@ If dired-mode, open the file"
         ("P" . peep-dired))
   :config
   (setq peep-dired-ignored-extensions '("mkv" "iso" "mp4")))
+
+
+
+(use-package dired-posframe ; little buggy
+  ;; :hook
+  ;; (dired-mode . dired-posframe-mode)
+  :bind
+  (:map dired-mode-map
+        ("C-*" . dired-posframe-show))
+  :config
+  (setq dired-posframe-parameters
+        '((parent-frame . nil)))
+  (setq dired-posframe-border-width 2)
+  ;; (setq dired-posframe-enable-modes '(image-mode))
+  ;; (dired-posframe-mode)
+  )
 
 
 
@@ -2654,7 +2751,7 @@ If dired-mode, open the file"
 
 
 (use-package eshell-prompt-extras
-  :disabled
+  ;; :disabled
   ;; pip install virtualenvwrapper
   ;; And virtualenvwrapper.el
 
@@ -2689,12 +2786,12 @@ If dired-mode, open the file"
   ;;         eshell-prompt-function 'epe-theme-lambda))
   )
 
-  (use-package eshell-git-prompt
-    :disabled
-    :config
-    ;; (setq eshell-prompt-function (lambda () "A simple prompt." "$ ")
-    ;;       eshell-prompt-regexp    "^$ ")
-    (eshell-git-prompt-use-theme 'powerline))
+(use-package eshell-git-prompt
+  ;; :disabled
+  :config
+  ;; (setq eshell-prompt-function (lambda () "A simple prompt." "$ ")
+  ;;       eshell-prompt-regexp    "^$ ")
+  (eshell-git-prompt-use-theme 'powerline))
 
 
 
@@ -2714,6 +2811,41 @@ If dired-mode, open the file"
 ;; aweshell
 ;; (add-to-list 'load-path "~/.emacs.d/mylisp/aweshell")
 ;; (require 'aweshell)
+
+
+
+(use-package eshell-syntax-highlighting
+  :after esh-mode
+  :config
+  ;; Enable in all Eshell buffers.
+  (eshell-syntax-highlighting-global-mode 1))
+
+
+
+(use-package xterm-color
+  :config
+  (setq comint-output-filter-functions
+        (remove 'ansi-color-process-output comint-output-filter-functions))
+  (add-hook 'shell-mode-hook
+            (lambda ()
+              ;; Disable font-locking in this buffer to improve performance
+              (font-lock-mode -1)
+              ;; Prevent font-locking from being re-enabled in this buffer
+              (make-local-variable 'font-lock-function)
+              (setq font-lock-function (lambda (_) nil))
+              (add-hook 'comint-preoutput-filter-functions
+                        'xterm-color-filter nil t)))
+  ;; Also set TERM accordingly (xterm-256color) in the shell itself.
+  ;; An example configuration for eshell
+  (require 'eshell) ; or use with-eval-after-load
+  (add-hook 'eshell-before-prompt-hook
+            (lambda ()
+              (setq xterm-color-preserve-properties t)))
+  (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+  (setq eshell-output-filter-functions
+        (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+  (setenv "TERM" "xterm-256color")
+  )
 
 
 
@@ -3643,8 +3775,9 @@ Position the cursor at it's beginning, according to the current mode."
         (mode . java-mode)
         (mode . idl-mode)
         (mode . lisp-mode))))))
+ '(org-agenda-files '("~/org/todo.org" "~/org/test.org"))
  '(package-selected-packages
-   '(pinentry goto-chg fzf vterm-toggle vterm mentor projectile markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner avy-flycheck ace-link helm-swoop ace-mc pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
+   '(dired-posframe which-key-posframe helm-posframe eshell-syntax-highlighting pinentry goto-chg fzf vterm-toggle vterm mentor projectile markdown-mode helm-flycheck dired-filter dired-open dired-subtree dired-ranger dired-rainbow aggressive-indent perspective esh-autosuggest eshell-git-prompt eshell-prompt-extras eshell-toggle exwm-edit pcmpl-args ace-window magit company-quickhelp helm-themes highlight eval-sexp-fu auto-compile helm-mode-manager ace-jump-helm-line emms-player-mpv-jp-radios helm-w3m w3m pdf-tools multi-term helm-eww eyeliner avy-flycheck ace-link helm-swoop ace-mc pcomplete-extension naquadah-theme buffer-expose which-key golen-ratio zoom-window zoom sdcv helm-exwm exwm-config exwm mu4e-alert htmlize anzu xkcd deft undo-tree visible-mark visual-mark scratch swipe use-package-chords dired-narrow peep-dired avy wttrin bm multiple-cursors spaceline-all-the-icons spaceline guide-key shell-pop google-this diminish auto-package-update use-package key-chord edit-server blacken vimrc-mode live-py-mode ein jedi elpy poe-lootfilter-mode yasnippet comment-dwim-2 zygospore sr-speedbar helm-projectile helm-descbinds helm help-mode+ help-fns+ help+ discover-my-major info+ showtip highlight-symbol highlight-numbers nyan-prompt nyan-mode smartparens flycheck ztree expand-region volatile-highlights auto-complete emms rainbow-mode rainbow-delimiters js2-mode))
  '(temp-buffer-resize-mode nil)
  '(time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S")
  '(vc-annotate-background nil)
@@ -3706,5 +3839,4 @@ Position the cursor at it's beginning, according to the current mode."
 (provide 'init)
 ;;; init.el ends here
 
-;;  LocalWords:  rofime scccolor sccbuffer ryutas
-(put 'upcase-region 'disabled nil)
+;;  LocalWords:  rofime scccolor sccbuffer ryutas pinentry xwidget posframe
