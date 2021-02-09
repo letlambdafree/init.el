@@ -2740,7 +2740,16 @@ If dired-mode, open the file"
         ;; ("C-<enter>" . vterm-toggle-insert-cd)
         )
   :config
+  ;; "How to hide the vterm buffer"
+  ;;      "Toggle without closing the vterm window" nil
+  ;;      "Reset Window configration"               reset-window-configration
+  ;;      "Delete window"                           delete-window
   (setq vterm-toggle-hide-method 'reset-window-configration)
+  ;; "Whether reset window configuration after vterm buffer is killed."
+  ;;      "Do nothing"                           nil
+  ;;      "Reset window configration after exit" t
+  ;;      "Kill Window only"                     kill-window-only
+  (setq vterm-toggle-reset-window-configration-after-exit t)
   )
 
 
@@ -3081,6 +3090,7 @@ If dired-mode, open the file"
   (exwm-input-set-key (kbd "C-' d") 'sdcv-search-pointer)
   (exwm-input-set-key (kbd "C-' C-d") 'sdcv-search-input)
   (exwm-input-set-key (kbd "C-' g") 'google-this-noconfirm)
+  (exwm-input-set-key (kbd "s-'") #'vterm-toggle)
 
   ;; Global keybindings can be defined with `exwm-input-global-keys'.
   ;; Here are a few examples:
