@@ -1016,7 +1016,7 @@ When called repeatedly, cycle through the buffers."
 (setq dired-recursive-copies 'always) ; "always" means no asking
 ;; "top" means ask once for top level directory
 (setq dired-recursive-deletes 'top)
-(setq dired-listing-switches "-alh --group-directories-first")
+(setq dired-listing-switches "-laGh1v --group-directories-first") ; 1v for sort
 (setq mouse-1-click-follows-link 450)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (add-hook 'dired-mode-hook 'auto-revert-mode)
@@ -1077,7 +1077,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
      ;; video file
      ((member (file-name-extension f)
               '("mkv" "avi" "mp4" "mpeg" "mpg" "wmv" "flv"
-                "webm" "ogg" "asf" "mov" "ts"))
+                "webm" "asf" "mov" "ts"))
       (progn
         (let*
             ((f (s-replace-regexp "[[(){}<>&'\";|\\[:space:]]" "\\\\\\&" f))
@@ -1382,11 +1382,13 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 
 (use-package edit-server
+  :disabled ; no need in exwm
   :hook
   (edit-server-done . (lambda ()
                         (kill-ring-save (point-min) (point-max))))
   :config
-  (when (and (daemonp) (require 'edit-server nil :noerror))
+  (when (and (daemonp)
+             (require 'edit-server nil :noerror))
     (setq edit-server-new-frame nil) ; nil for window
     (edit-server-start)))
 
@@ -1394,9 +1396,11 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 (use-package google-this
   :diminish
-  :bind ; prefix: C-c /
+  :bind
+  ;; ("C-c g" . google-this-mode-submap)
   ("C-' g" . google-this-noconfirm)
   :config
+  (global-set-key (kbd "C-c g") 'google-this-mode-submap)
   (google-this-mode))
 
 
@@ -1407,6 +1411,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   ("C-' C-d" . sdcv-search-input)
   :config
   (setq sdcv-say-word-p t)
+  (setq sdcv-tooltip-timeout nil) ; default 5 secs
   (setq sdcv-dictionary-simple-list
         '("Collins5"
           "Korean-Dic"
@@ -2733,7 +2738,10 @@ If dired-mode, open the file"
         ("s-p" . vterm-toggle-backward)
         ("s-n" . vterm-toggle-forward)
         ;; ("C-<enter>" . vterm-toggle-insert-cd)
-        ))
+        )
+  :config
+  (setq vterm-toggle-hide-method 'reset-window-configration)
+  )
 
 
 
