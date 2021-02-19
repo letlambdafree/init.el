@@ -1077,7 +1077,7 @@ Video file plays on a fit window with original aspect raitio in exwm."
      ;; video file
      ((member (file-name-extension f)
               '("mkv" "avi" "mp4" "mpeg" "mpg" "wmv" "flv"
-                "webm" "asf" "mov" "ts"))
+                "webm" "asf" "mov" "ts" "ogv"))
       (progn
         (let*
             ((f (s-replace-regexp "[[(){}<>&'\";|\\[:space:]]" "\\\\\\&" f))
@@ -2732,11 +2732,11 @@ If dired-mode, open the file"
 
 (use-package vterm-toggle
   :bind
-  ("s-'" . vterm-toggle)
+  ("C-' C-'" . vterm-toggle) ; doesn't work properly (2021-02-14)
   ;; ("s-\"" . vterm-toggle-cd)
   (:map vterm-mode-map
-        ("s-p" . vterm-toggle-backward)
-        ("s-n" . vterm-toggle-forward)
+        ("C-' C-p" . vterm-toggle-backward)
+        ("C-' C-n" . vterm-toggle-forward)
         ;; ("C-<enter>" . vterm-toggle-insert-cd)
         )
   :config
@@ -3857,4 +3857,4 @@ Position the cursor at it's beginning, according to the current mode."
 (provide 'init)
 ;;; init.el ends here
 
-;;  LocalWords:  rofime scccolor sccbuffer ryutas pinentry xwidget posframe
+;;  LocalWords:  rofime scccolor sccbuffer ryutas pinentry xwidget posframe ogv
