@@ -228,10 +228,10 @@ There are two things you can do about this warning:
 ;;                     :foreground "DarkOrange"
 ;;                     :background "black"
 ;;                     :box nil)
-(global-set-key (kbd "<mode-line><double-mouse-1>")
-                'ryutas/zoom-window-zoom) ; error for zoom-window-zoom
-(global-set-key (kbd "<mode-line><mouse-3>")
-                'ryutas/zoom-window-zoom)
+(global-set-key (kbd "<mode-line><double-mouse-1>") 'ryutas/zoom-window-zoom)
+(global-set-key (kbd "<mode-line><mouse-3>") 'ryutas/zoom-window-zoom)
+(global-set-key (kbd "<mode-line><mouse-8>") 'tab-next)
+(global-set-key (kbd "<mode-line><mouse-9>") 'tab-previous)
 
 
 
@@ -295,6 +295,7 @@ There are two things you can do about this warning:
 (global-so-long-mode 1) ; such as json file
 
 
+
 ;; basic variables
 (setq visible-bell t
       ;; mouse-drag-copy-region t ; automatically kill-ring
@@ -323,6 +324,7 @@ There are two things you can do about this warning:
       case-replace nil ; Non-nil means should preserve case
       register-preview-delay nil
       ;; bidi-inhibit-bpa t
+      tab-bar-show nil ; t 1 nil
       )
 
 
@@ -957,12 +959,11 @@ When called repeatedly, cycle through the buffers."
 (setq mu4e-view-show-images t)
 
 (with-eval-after-load "mu4e"
-  ;; (add-to-list 'mu4e-view-actions ; buggy and flickering
-  ;;              '("xViewInBrowser" . mu4e-action-view-with-xwidget) t)
+  (add-to-list 'mu4e-view-actions ; little buggy and flickering
+               '("xViewInBrowser" . mu4e-action-view-with-xwidget) t)
   (add-to-list 'mu4e-view-actions
                '("aViewInBrowser" . mu4e-action-view-in-browser) t))
 (add-hook 'after-init-hook #'mu4e)
-
 
 (use-package mu4e-alert
   :config
@@ -2432,6 +2433,7 @@ If dired-mode, open the file"
 
 
 (use-package dired-posframe ; little buggy
+  :disabled
   ;; :hook
   ;; (dired-mode . dired-posframe-mode)
   :bind
@@ -2749,7 +2751,7 @@ If dired-mode, open the file"
   ;;      "Do nothing"                           nil
   ;;      "Reset window configration after exit" t
   ;;      "Kill Window only"                     kill-window-only
-  (setq vterm-toggle-reset-window-configration-after-exit t)
+  (setq vterm-toggle-reset-window-configration-after-exit nil)
   )
 
 
@@ -3027,20 +3029,25 @@ If dired-mode, open the file"
     (exwm-workspace-rename-buffer exwm-title)
     (if (string-match-p "Torrents for " (buffer-name))
         (exwm-floating-toggle-floating)))
-
   (add-hook 'exwm-update-title-hook 'ryutas/exwm-rename-buffer-to-title)
+  ;; hide mode-line for exwm-mode
+  ;; (add-hook 'exwm-manage-finish-hook 'exwm-layout-hide-mode-line)
   (add-hook 'exwm-floating-setup-hook 'exwm-layout-hide-mode-line)
   (add-hook 'exwm-floating-exit-hook 'exwm-layout-show-mode-line)
 
   (setq exwm-workspace-number 1)
   (setq exwm-manage-force-tiling t)
-  (setq exwm-workspace-show-all-buffers nil)
-  (setq exwm-layout-show-all-buffers nil)
+  (setq exwm-workspace-show-all-buffers t)
+  (setq exwm-layout-show-all-buffers t)
   (setq exwm-workspace-switch-create-limit 10)
   (setq exwm-workspace-display-echo-area-timeout 5) ; seconds
   ;; Per-application configurations
   (setq exwm-manage-configurations
-        '(((string= "Gxmessage" exwm-class-name) floating t)))
+        '(((string= "Gxmessage" exwm-class-name) floating t)
+          ;; gimp flickering workaround
+          ((and (string= "Gimp" exwm-class-name)
+                (not (string= "GNU Image Manipulation Program" exwm-title)))
+           floating t)))
 
   ;; All buffers created in EXWM mode are named "*EXWM*". You may want to
   ;; change it in `exwm-update-class-hook' and `exwm-update-title-hook', which
@@ -3083,6 +3090,8 @@ If dired-mode, open the file"
   ;; (exwm-input-set-key (kbd "C-c 1") 'ryutas/aspect-ratio-t)
   ;; (exwm-input-set-key (kbd "C-c 2") 'ryutas/aspect-ratio-w)
   ;; (exwm-input-set-key (kbd "C-c 3") 'ryutas/aspect-ratio-h)
+  ;;
+  ;; favorite keys
   (exwm-input-set-key (kbd "C-' '") 'goto-last-change)
   (exwm-input-set-key (kbd "C-' f") 'ace-window)
   (exwm-input-set-key (kbd "C-' <SPC>") 'ryutas/avy-goto-char-timer)
@@ -3090,7 +3099,7 @@ If dired-mode, open the file"
   (exwm-input-set-key (kbd "C-' d") 'sdcv-search-pointer)
   (exwm-input-set-key (kbd "C-' C-d") 'sdcv-search-input)
   (exwm-input-set-key (kbd "C-' g") 'google-this-noconfirm)
-  (exwm-input-set-key (kbd "s-'") #'vterm-toggle)
+  (exwm-input-set-key (kbd "C-' C-'") #'vterm-toggle)
 
   ;; Global keybindings can be defined with `exwm-input-global-keys'.
   ;; Here are a few examples:
@@ -3101,8 +3110,11 @@ If dired-mode, open the file"
           ([?\s-f] . exwm-layout-toggle-fullscreen)
           ([?\s-v] . exwm-floating-toggle-floating)
           ([?\s-x] . helm-run-external-command)
-          ;;  Bind "s-escape" to switch workspace in loop.
-          ([s-escape] .
+          ([\s-escape] . tab-next)
+          ([\s-\S-escape] . tab-previous) ; don't work on exwm
+          ([?\s-w] . tab-switcher)
+          ;;  Bind "s-M-escape" to switch workspace in loop.
+          ([\s-\M-escape] .
            (lambda ()
              (interactive)
              (if (eq (1+ exwm-workspace-current-index)
@@ -3120,7 +3132,7 @@ If dired-mode, open the file"
                            (number-to-string exwm-workspace-current-index)
                            'face '(:foreground "red")))))))
           ;; Bind "s-w" to switch workspace interactively.
-          ([?\s-w] . exwm-workspace-switch)
+          ([?\s-\M-w] . exwm-workspace-switch) ; don't work
           ;; Bind "s-1" to "s-9" to switch to a workspace by its index.
           ,@(mapcar (lambda (i)
                       `(,(kbd (format "s-%d" i)) .
@@ -3136,9 +3148,9 @@ If dired-mode, open the file"
                        (start-process-shell-command command nil command)))
 
           ;; Bind "s-<f2>" to "slock", a simple X display locker.
-          ([s-f2] . (lambda ()
-                      (interactive)
-                      (start-process "" nil "/usr/bin/slock")))
+          ([\s-f2] . (lambda ()
+                       (interactive)
+                       (start-process "" nil "/usr/bin/slock")))
           ))
 
   ;; for C-h to backspace
@@ -3256,7 +3268,15 @@ If dired-mode, open the file"
 
   ;; You can hide the minibuffer and echo area when they're not used
   ;; but it works with additional frame ; error for me
-  ;; (setq exwm-workspace-minibuffer-position nil)
+  ;;
+  ;; "Position of the minibuffer frame.
+  ;; A restart is required for this change to take effect."
+  ;;
+  ;; "Bottom (fixed)" nil
+  ;; "Bottom (auto-hide)" bottom
+  ;; "Top (auto-hide)" top
+  ;;
+  (setq exwm-workspace-minibuffer-position nil)
 
   (defun fhd/exwm-input-line-mode ()
     "Set exwm window to line-mode and show mode line"
@@ -3858,3 +3878,4 @@ Position the cursor at it's beginning, according to the current mode."
 ;;; init.el ends here
 
 ;;  LocalWords:  rofime scccolor sccbuffer ryutas pinentry xwidget posframe ogv
+                                        ; LocalWords:  Gxmessage
