@@ -3027,7 +3027,8 @@ If dired-mode, open the file"
   ;; Rename buffer to window title.
   (defun ryutas/exwm-rename-buffer-to-title ()
     (exwm-workspace-rename-buffer exwm-title)
-    (if (string-match-p "Torrents for " (buffer-name))
+    ;; config for some apps
+    (if (string-match-p "^Torrents for .* — Mozilla Firefox$" exwm-title)
         (exwm-floating-toggle-floating)))
   (add-hook 'exwm-update-title-hook 'ryutas/exwm-rename-buffer-to-title)
   ;; hide mode-line for exwm-mode
