@@ -1168,21 +1168,16 @@ Video file plays on a fit window with original aspect raitio in exwm."
   (archive-next-line direction)
   (ignore-errors (archive-view)))
 
-(define-key image-mode-map "x" (lambda ()
-                                 (interactive)
-                                 (archive-image-view 1)))
-(define-key image-mode-map "z" (lambda ()
-                                 (interactive)
-                                 (archive-image-view -1)))
-(define-key image-mode-map "q" (lambda ()
-                                 (interactive)
-                                 (quit-window 1)))
-(define-key archive-mode-map "q" (lambda ()
-                                   (interactive)
-                                   (quit-window 1)))
-(define-key dired-mode-map "q" (lambda ()
-                                 (interactive)
-                                 (quit-window 1)))
+(define-key
+  image-mode-map "x" (lambda () (interactive) (archive-image-view 1)))
+(define-key
+  image-mode-map "z" (lambda () (interactive) (archive-image-view -1)))
+(define-key
+  image-mode-map "q" (lambda () (interactive) (quit-window 1)))
+(define-key
+  archive-mode-map "q" (lambda () (interactive) (quit-window 1)))
+(define-key
+  dired-mode-map "q" (lambda () (interactive) (quit-window 1)))
 
 
 
@@ -3100,7 +3095,7 @@ If dired-mode, open the file"
   (exwm-input-set-key (kbd "C-' d") 'sdcv-search-pointer)
   (exwm-input-set-key (kbd "C-' C-d") 'sdcv-search-input)
   (exwm-input-set-key (kbd "C-' g") 'google-this-noconfirm)
-  (exwm-input-set-key (kbd "C-' C-'") #'vterm-toggle)
+  (exwm-input-set-key (kbd "C-' C-'") 'vterm-toggle)
 
   ;; Global keybindings can be defined with `exwm-input-global-keys'.
   ;; Here are a few examples:
