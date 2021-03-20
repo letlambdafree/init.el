@@ -977,7 +977,7 @@ When called repeatedly, cycle through the buffers."
   (mu4e-alert-set-default-style 'libnotify)
   ;; (setq mu4e-alert-email-notification-types '(count subjects))
   (add-hook 'after-init-hook #'mu4e-alert-enable-notifications)
-  (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display)
+  ;; (add-hook 'after-init-hook #'mu4e-alert-enable-mode-line-display)
   (setq mu4e-alert-interesting-mail-query
         (concat "flag:unread"
                 " AND NOT flag:trashed"
@@ -1383,10 +1383,18 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   (edit-server-done . (lambda ()
                         (kill-ring-save (point-min) (point-max))))
   :config
-  (when (and (daemonp)
-             (require 'edit-server nil :noerror))
-    (setq edit-server-new-frame nil) ; nil for window
-    (edit-server-start)))
+  ;; (setq edit-server-new-frame-alist
+  ;;       '((name . "Edit with Emacs FRAME")
+  ;;         (top . 200)
+  ;;         (left . 200)
+  ;;         (width . 80)
+  ;;         (height . 25)
+  ;;         (minibuffer . t)
+  ;;         (menu-bar-lines . t)
+  ;;         (window-system . x)))
+  (require 'edit-server)
+  (setq edit-server-new-frame nil) ; nil for window
+  (edit-server-start))
 
 
 
@@ -1479,7 +1487,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   ;; (setq python-shell-interpreter "python"
   ;;       python-shell-interpreter-args "-i")
   ;; Use IPython for REPL
-  (setq python-shell-interpreter "ipython"
+  (setq python-shell-interpreter "ipython3"
         python-shell-interpreter-args "-i --simple-prompt"))
 
 
@@ -2721,7 +2729,7 @@ If dired-mode, open the file"
   ;; require CMAKE for compile
   :config
   (setq vterm-buffer-name-string "vterm %s")
-  (setq vterm-min-window-width 59) ; for tmux date
+  ;; (setq vterm-min-window-width 59) ; for tmux date
   (setq vterm-max-scrollback 10000) ; default: 1000, default-max:100000
   (setq vterm-kill-buffer-on-exit t))
 
@@ -3025,18 +3033,21 @@ If dired-mode, open the file"
     ;; config for some apps
     (if (string-match-p "^Torrents for .* — Mozilla Firefox$" exwm-title)
         (exwm-floating-toggle-floating)))
+
   (add-hook 'exwm-update-title-hook 'ryutas/exwm-rename-buffer-to-title)
+
   ;; hide mode-line for exwm-mode
-  ;; (add-hook 'exwm-manage-finish-hook 'exwm-layout-hide-mode-line)
+  (add-hook 'exwm-manage-finish-hook 'exwm-layout-hide-mode-line)
   (add-hook 'exwm-floating-setup-hook 'exwm-layout-hide-mode-line)
-  (add-hook 'exwm-floating-exit-hook 'exwm-layout-show-mode-line)
+  (add-hook 'exwm-floating-exit-hook 'exwm-layout-hide-mode-line)
 
   (setq exwm-workspace-number 1)
-  (setq exwm-manage-force-tiling t)
-  (setq exwm-workspace-show-all-buffers t)
-  (setq exwm-layout-show-all-buffers t)
+  (setq exwm-manage-force-tiling t) ; error for gimp
+  (setq exwm-workspace-show-all-buffers nil)
+  (setq exwm-layout-show-all-buffers nil)
   (setq exwm-workspace-switch-create-limit 10)
   (setq exwm-workspace-display-echo-area-timeout 5) ; seconds
+
   ;; Per-application configurations
   (setq exwm-manage-configurations
         '(((string= "Gxmessage" exwm-class-name) floating t)
@@ -3874,4 +3885,4 @@ Position the cursor at it's beginning, according to the current mode."
 ;;; init.el ends here
 
 ;;  LocalWords:  rofime scccolor sccbuffer ryutas pinentry xwidget posframe ogv
-                                        ; LocalWords:  Gxmessage
+                                        ; LocalWords:  Gxmessage ipython
