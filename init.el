@@ -236,6 +236,8 @@ There are two things you can do about this warning:
 
 
 ;; setup-minibuffer
+(setq minibuffer-message-timeout 2)
+(setq minibuffer-message-clear-timeout 2)
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode)
 
@@ -284,7 +286,7 @@ There are two things you can do about this warning:
 (global-linum-mode -1)
 (global-auto-revert-mode)
 (save-place-mode 1)
-(subword-mode) ; CamelWord Meta-f
+(subword-mode) ; CamelWord for M-f
 (size-indication-mode 1)
 (fringe-mode '(1 . 1))
 (delete-selection-mode)
@@ -293,18 +295,17 @@ There are two things you can do about this warning:
 (normal-erase-is-backspace-mode) ; del key deletes at point
 (display-time-mode -1)
 (global-so-long-mode 1) ; such as json file
-
+(tooltip-mode) ; a little buggy with popup of modeline
 
 
 ;; basic variables
-(setq visible-bell t
+(setq visible-bell nil ; for xwidget
       ;; mouse-drag-copy-region t ; automatically kill-ring
       save-interprogram-paste-before-kill t
       debug-on-error t ; Launch a debugger with a stactrace
       ;; debug-on-quit t ; quit with C-g for Emacs frozen
       ;; edebug-all-forms t
       ;; view-read-only t
-      visible-bell t
       echo-keystrokes 0.1 ; 0 for which-key
       max-mini-window-height 0.25
       insert-default-directory t
@@ -325,6 +326,7 @@ There are two things you can do about this warning:
       register-preview-delay nil
       ;; bidi-inhibit-bpa t
       tab-bar-show nil ; t 1 nil
+      tooltip-delay 0.1 ; default 0.7
       )
 
 
@@ -1815,6 +1817,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 
 (use-package helm-posframe ; like ivy-posframe
+  :disabled ; some buggy with helm-minibuffer-history
   :config
   (setq helm-posframe-parameters
         '(
@@ -1836,7 +1839,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   ;; Error during redisplay: (run-hook-with-args helm--delete-frame-function
   ;; #<frame 0x5586330a1f90>) signaled (user-error "No recursive edit is in
   ;; progress")
-  (remove-hook 'delete-frame-functions 'helm--delete-frame-function)
+  (remove-hook 'delete-frame-functions 'helm--delete-frame-function) ; test
   )
 
 
@@ -3886,3 +3889,4 @@ Position the cursor at it's beginning, according to the current mode."
 
 ;;  LocalWords:  rofime scccolor sccbuffer ryutas pinentry xwidget posframe ogv
                                         ; LocalWords:  Gxmessage ipython
+                                        ; LocalWords:  modeline
