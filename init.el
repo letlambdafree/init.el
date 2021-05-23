@@ -114,7 +114,7 @@ There are two things you can do about this warning:
 (setq use-package-always-ensure t)
 ;; (setq use-package-always-defer t)
 (eval-when-compile (require 'use-package))
-(require 'diminish) ; if you use :diminish
+;; (require 'diminish) ; if you use :diminish
 (require 'bind-key) ; if you use :bind
 
 
@@ -528,7 +528,7 @@ There are two things you can do about this warning:
 ;;                   "MyPrivateFont")
 (add-to-list 'face-ignored-fonts "baekmuk")
 ;; (setq use-default-font-for-symbols nil)
-(set-face-font 'default "Menlo-10")
+(set-face-font 'default "Menlo-10")'
 
 
 
@@ -873,7 +873,7 @@ When called repeatedly, cycle through the buffers."
 
 
 
-;;; xwidget-webkit
+;;; xwidget-webkit ; strong buggy, use surf for mu4e
 ;; adapt webkit according to window configuration chagne automatically
 ;; without this hook, every time you change your window configuration,
 ;; you must press 'a' to adapt webkit content to new window size
@@ -891,9 +891,9 @@ When called repeatedly, cycle through the buffers."
 ;; use mu4e for e-mail in emacs
 (setq mail-user-agent 'mu4e-user-agent)
 
-(setq mu4e-drafts-folder "/[Gmail].Drafts")
-(setq mu4e-sent-folder   "/[Gmail].Sent Mail")
-(setq mu4e-trash-folder  "/[Gmail].Trash")
+;; (setq mu4e-drafts-folder "/[Gmail].Drafts")
+;; (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
+;; (setq mu4e-trash-folder  "/[Gmail].Trash")
 
 (setq mu4e-headers-time-format  "%H:%M:%S")
 (setq mu4e-headers-date-format  "%y/%m/%d")
@@ -917,10 +917,10 @@ When called repeatedly, cycle through the buffers."
 ;; the 'All Mail' folder by pressing ``ma''.
 
 (setq mu4e-maildir-shortcuts
-      '((:maildir "/INBOX"              :key ?i)
-        (:maildir "/[Gmail].Sent Mail"  :key ?s)
-        (:maildir "/[Gmail].Trash"      :key ?t)
-        (:maildir "/[Gmail].All Mail"   :key ?a)))
+      '((:maildir "/Inbox"              :key ?i)
+        (:maildir "/[Gmail]/Sent Mail"  :key ?s)
+        (:maildir "/[Gmail]/Trash"      :key ?t)
+        (:maildir "/[Gmail]/All Mail"   :key ?a)))
 
 ;; allow for updating mail using 'U' in the main view:
 (setq mu4e-get-mail-command "mbsync -a")
@@ -950,7 +950,7 @@ When called repeatedly, cycle through the buffers."
       smtpmail-smtp-server "smtp.gmail.com"
       smtpmail-smtp-service 587)
 (setq smtpmail-queue-mail nil  ;; start in normal mode
-      smtpmail-queue-dir   "~/Mail/queue/cur")
+      smtpmail-queue-dir   "~/.mail/queue/cur")
 ;; don't save message to Sent Messages, Gmail/IMAP takes care of this
 (setq mu4e-sent-messages-behavior 'delete)
 
@@ -1742,7 +1742,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   ;;               (define-key eshell-mode-map  (kbd "C-c C-l")  'helm-eshell-history)))
   (helm-mode 1)
   (semantic-mode 1)
-  (helm-descbinds-mode 1)
+  ;; (helm-descbinds-mode 1)
   (helm-autoresize-mode 1))
 
 
@@ -1817,7 +1817,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
 
 
 (use-package helm-posframe ; like ivy-posframe
-  :disabled ; some buggy with helm-minibuffer-history
+  ;; :disabled ; some buggy with helm-minibuffer-history
   :config
   (setq helm-posframe-parameters
         '(
@@ -1839,7 +1839,7 @@ URL `http://ergoemacs.org/emacs/emacs_eww_web_browser.html'
   ;; Error during redisplay: (run-hook-with-args helm--delete-frame-function
   ;; #<frame 0x5586330a1f90>) signaled (user-error "No recursive edit is in
   ;; progress")
-  (remove-hook 'delete-frame-functions 'helm--delete-frame-function) ; test
+  ;; (remove-hook 'delete-frame-functions 'helm--delete-frame-function) ; test
   )
 
 
@@ -3341,7 +3341,7 @@ If dired-mode, open the file"
   ;; (setq exwm-systemtray-height 20)
   ;; Do not forget to enable EXWM. It will start by itself when things are
   ;; ready.  You can put it _anywhere_ in your configuration.
-  ;; (exwm-enable)
+  (exwm-enable)
   )
 
 
